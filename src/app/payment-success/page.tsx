@@ -1,27 +1,41 @@
 "use client";
-import { useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 
-export default function PaymentSuccess() {
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
+  const sessionId = searchParams.get("session_id");
+
+  const [status, setStatus] = useState("Verifying...");
 
   useEffect(() => {
-    const sessionId = searchParams.get("session_id");
-    if (sessionId) {
-      // Call your Convex mutation to set isPro=true
-      fetch("/api/update-user-pro", {
+    const verifyPayment = async () => {
+      if (!sessionId) return;
+      const res = await fetch("/api/update-user-pro", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId }),
-      }).then(() => {
-        router.push("/"); // Redirect to homepage
       });
-    }
-  }, [searchParams, router]);
+      const data = await res.json();
+      setStatus(
+        data.success ? "✅ Payment verified!" : "❌ Verification failed."
+      );
+    };
+    verifyPayment();
+  }, [sessionId]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center text-white">
-      <h1 className="text-3xl font-bold">Processing your payment...</h1>
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-lg font-semibold">{status}</p>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<p>Loading payment details...</p>}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
