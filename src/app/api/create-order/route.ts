@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     console.log({ order });
 
     return NextResponse.json(order);
-  } catch (err: any) {
+  } catch (err) {
     console.error("Razorpay Order Error:", err);
     return NextResponse.json(
       { error: "Failed to create order" },
