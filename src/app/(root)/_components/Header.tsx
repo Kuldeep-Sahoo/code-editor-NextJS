@@ -1,10 +1,9 @@
-
 import { currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import React from "react";
 import { api } from "../../../../convex/_generated/api";
 import Link from "next/link";
-import { Blocks, Code2, Sparkles } from "lucide-react";
+import { Code2, CodeXmlIcon, Sparkles } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import { SignedIn } from "@clerk/nextjs";
@@ -39,15 +38,15 @@ async function Header() {
               className="relative bg-gradient-to-br from-[#1a1a2e] to-[#0a0a0f] p-2 rounded-xl ring-1
               ring-white/10 group-hover:ring-white/20 transition-all"
             >
-              <Blocks className="size-6 text-blue-400 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500" />
+              <CodeXmlIcon className="size-6 text-green-400 text-gradient-to-r from-green-400 via-blue-300 to-purple-400 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500" />
             </div>
 
             <div className="flex flex-col">
-              <span className="block text-lg font-semibold bg-gradient-to-r from-blue-400 via-blue-300 to-purple-400 text-transparent bg-clip-text">
-                CodeCraft
+              <span className="block text-lg font-semibold bg-gradient-to-r from-green-400 via-blue-300 to-purple-400 text-transparent bg-clip-text">
+                EditorForU
               </span>
               <span className="block text-xs text-blue-400/60 font-medium">
-                Interactive Code Editor
+                Your Code Editor
               </span>
             </div>
           </Link>
@@ -77,7 +76,10 @@ async function Header() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
             <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+            <LanguageSelector
+              hasAccess={Boolean(convexUser?.isPro)}
+              // hasAccess={true}
+            />
           </div>
           {!convexUser?.isPro && (
             <Link

@@ -36,9 +36,11 @@ const Page = () => {
               <div className="flex items-center gap-4">
                 <div className="flex items-center justify-center size-12 rounded-xl bg-[#ffffff08] p-2.5">
                   <Image
-                    src={`/${snippet.language}.png`}
+                    src={`/${snippet.language.toLowerCase()}.png`}
                     alt={`${snippet.language} logo`}
-                    className="w-full h-full object-contain"
+                    width={48}
+                    height={48}
+                    className="object-contain"
                   />
                 </div>
                 <div>

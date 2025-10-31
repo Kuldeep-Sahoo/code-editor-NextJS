@@ -11,6 +11,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.12.0",
     "@monaco-editor/react": "^4.7.0",
+    "@stripe/stripe-js": "^8.2.0",
     "convex": "^1.19.2",
     "framer-motion": "^12.4.7",
     "lucide-react": "^0.476.0",
@@ -23,6 +24,7 @@
     "react-split-pane": "^0.1.92",
     "react-syntax-highlighter": "^15.6.1",
     "react-tooltip": "^5.28.0",
+    "stripe": "^19.2.0",
     "svix": "^1.60.0",
     "zustand": "^5.0.3"
   },

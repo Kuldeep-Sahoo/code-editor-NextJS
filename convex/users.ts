@@ -41,3 +41,20 @@ export const getUser = query({
     return user;
   },
 });
+
+export const updateUserProStatus = mutation({
+  args: { userId: v.string(), isPro: v.boolean(), proSince: v.number() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, {
+      isPro: args.isPro,
+      proSince: args.proSince,
+    });
+  },
+});

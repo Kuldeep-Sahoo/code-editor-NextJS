@@ -42,6 +42,20 @@ export const getUserExecutions = query({
   },
 });
 
+export const getUserExecutionsById = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    if (!args.userId) return [];
+
+    return await ctx.db
+      .query("codeExecutions")
+      .withIndex("by_user_id")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .order("desc")
+      .collect();
+  },
+});
+
 export const getUserStats = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
@@ -112,30 +126,42 @@ export const getUserStats = query({
 });
 
 
-export const getExecutionHistory = query(async ({ db }) => {
-  const executions = await db.query("codeExecutions").collect();
+export const getExecutionHistory = query({
+  args: {
+    userId: v.string(), // expect userId as argument
+  },
+  handler: async ({ db }, { userId }) => {
+    const executions = await db
+      .query("codeExecutions")
+      .withIndex("by_user_id")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
 
-  // Aggregate executions by date
-  const historyMap: Record<string, { success: number; error: number }> = {};
+    // Aggregate executions by date
+    const historyMap: Record<string, { success: number; error: number }> = {};
 
-  executions.forEach((execution) => {
-    const date = new Date(execution._creationTime).toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    executions.forEach((execution) => {
+      const date = new Date(execution._creationTime)
+        .toISOString()
+        .split("T")[0]; // YYYY-MM-DD
 
-    if (!historyMap[date]) {
-      historyMap[date] = { success: 0, error: 0 };
-    }
+      if (!historyMap[date]) {
+        historyMap[date] = { success: 0, error: 0 };
+      }
 
-    if (execution.error) {
-      historyMap[date].error += 1;
-    } else {
-      historyMap[date].success += 1;
-    }
-  });
+      if (execution.error) {
+        historyMap[date].error += 1;
+      } else {
+        historyMap[date].success += 1;
+      }
+    });
 
-  // Convert object to array format
-  return Object.entries(historyMap).map(([date, { success, error }]) => ({
-    date,
-    success,
-    error,
-  }));
+    // Convert to array format
+    return Object.entries(historyMap).map(([date, { success, error }]) => ({
+      date,
+      success,
+      error,
+    }));
+  },
 });
+

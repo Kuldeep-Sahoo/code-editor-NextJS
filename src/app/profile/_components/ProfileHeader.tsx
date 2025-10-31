@@ -85,7 +85,10 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
     },
   ];
 
-  const executionHistory = useQuery(api.codeExecutions.getExecutionHistory) ?? [];
+  const executionHistory =
+    useQuery(api.codeExecutions.getExecutionHistory, {
+      userId: userData?.userId,
+    }) ?? [];
 
 
   return (
@@ -131,6 +134,7 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
           </p>
         </div>
       </div>
+      <Heatmap data={executionHistory} />
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         {STATS.map((stat, index) => (
@@ -187,7 +191,6 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
           </motion.div>
         ))}
       </div>
-      <Heatmap data={executionHistory} />
     </div>
   );
 }
