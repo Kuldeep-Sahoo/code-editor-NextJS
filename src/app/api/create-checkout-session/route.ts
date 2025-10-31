@@ -6,7 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const { userId } = await req.json();
-  const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const origin = req.headers.get("origin") || "http://localhost:3000";
 
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
