@@ -56,5 +56,6 @@ export const updateUserProStatus = mutation({
       isPro: args.isPro,
       proSince: args.proSince,
     });
+    console.log("done updating user pro status");
   },
 });

@@ -1,33 +1,67 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+  const router = useRouter();
+
+  const razorpayPaymentId = searchParams.get("razorpay_payment_id");
+  const razorpayOrderId = searchParams.get("razorpay_order_id");
+  const razorpaySignature = searchParams.get("razorpay_signature");
+  const userId = searchParams.get("userId");
 
   const [status, setStatus] = useState("Verifying...");
 
   useEffect(() => {
     const verifyPayment = async () => {
-      if (!sessionId) return;
-      const res = await fetch("/api/update-user-pro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      });
-      const data = await res.json();
-      setStatus(
-        data.success ? "✅ Payment verified!" : "❌ Verification failed."
-      );
+      if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature) return;
+
+      try {
+        console.log(" Calling verification API...");
+        const res = await fetch("/api/verify-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            razorpay_payment_id: razorpayPaymentId,
+            razorpay_order_id: razorpayOrderId,
+            razorpay_signature: razorpaySignature,
+            userId,
+          }),
+        });
+
+        console.log({res});
+        const data = await res.json();
+
+        if (data.success) {
+          setStatus("✅ Payment verified!");
+          setTimeout(() => router.push("/"), 2000); // ✅ clean redirect
+        } else {
+          setStatus("❌ Verification failed.");
+        }
+      } catch (err) {
+        console.error("Verification error:", err);
+        setStatus("❌ Verification failed.");
+      }
     };
+
     verifyPayment();
-  }, [sessionId]);
+  }, [razorpayPaymentId, razorpayOrderId, razorpaySignature, userId, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <p className="text-lg font-semibold">{status}</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
+      <p
+        className={`text-xl font-semibold ${
+          status.includes("✅")
+            ? "text-green-400"
+            : status.includes("❌")
+              ? "text-red-400"
+              : "text-yellow-400"
+        }`}
+      >
+        {status}
+      </p>
     </div>
   );
 }

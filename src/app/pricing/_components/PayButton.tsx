@@ -4,31 +4,89 @@ import { useUser } from "@clerk/nextjs";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 export default function PayButton() {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
-  const userId = user?.id || "";  
+  const userId = user?.id || "";
 
+  async function loadRazorpayScript() {
+    return new Promise((resolve, reject) => {
+      if (window.Razorpay) return resolve(true); // Already loaded
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => reject("Razorpay SDK failed to load.");
+      document.body.appendChild(script);
+    });
+  }
 
   async function handlePay() {
     try {
       setLoading(true);
-      const res = await fetch("/api/create-checkout-session", {
+
+      // ✅ Load Razorpay SDK first
+      await loadRazorpayScript();
+
+      // ✅ Create order
+      const res = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
       });
 
-
       const data = await res.json();
+      if (!data.id) throw new Error("Failed to create Razorpay order.");
 
-      if (!data.url) throw new Error("No checkout URL returned");
+      // ✅ Initialize Razorpay checkout
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Pro Membership",
+        description: "Upgrade to Pro Membership",
+        order_id: data.id,
+        theme: { color: "#6366f1" },
+        handler: async function (response: any) {
+          // ✅ Verify payment
+          const verifyRes = await fetch("/api/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ...response, userId }),
+          });
 
-      // ✅ Use URL redirect instead of Stripe.js method
-      window.location.href = data.url;
+          const verifyData = await verifyRes.json();
+
+          if (verifyData.success) {
+            const query = new URLSearchParams({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+              userId,
+            }).toString();
+
+            // ✅ Redirect with params
+            window.location.href = `/payment-success?${query}`;
+          } else {
+            alert("Payment verification failed!");
+          }
+        },
+        prefill: {
+          email: user?.primaryEmailAddress?.emailAddress || "",
+          name: user?.fullName || "",
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err) {
-      console.error("Payment error:", err);
-      alert("Something went wrong. Please try again.");
+      console.error("Payment Error:", err);
+      alert("Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -36,7 +94,6 @@ export default function PayButton() {
 
   return (
     <div className="relative inline-flex items-center justify-center p-[2px] rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 mb-6 group hover:scale-105 transition-transform duration-300">
-      <div className="absolute -inset-1 blur-md bg-gradient-to-br from-blue-500/40 via-purple-500/40 to-pink-500/40 opacity-20 group-hover:opacity-40 transition-opacity duration-300 rounded-xl" />
       <button
         onClick={handlePay}
         disabled={loading}
