@@ -4,6 +4,7 @@ import { api } from "../../../../convex/_generated/api";
 import {
   Activity,
   Code2,
+  Sparkles,
   Star,
   Timer,
   TrendingUp,
@@ -13,9 +14,11 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Id } from "../../../../convex/_generated/dataModel";
-import {UserResource} from "@clerk/types"
+import { ConvexHttpClient } from "convex/browser";
+import { UserResource } from "@clerk/types";
 import Image from "next/image";
 import Heatmap from "./Heatmap";
+import Link from "next/link";
 
 interface ProfileHeaderProps {
   userStats: {
@@ -90,50 +93,91 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
       userId: userData?.userId,
     }) ?? [];
 
+  const updateUserData = async () => {
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+    const answer = confirm("Toggling Pro Status cannot be undone!");
+    if (answer) {
+      await convex.mutation(api.users.updateUserProStatus, {
+        userId: userData.userId,
+        isPro: false,
+        proSince: 0,
+      });
+    }
+  };
 
   return (
     <div
-      className="relative mb-8 bg-gradient-to-br from-[#12121a] to-[#1a1a2e] rounded-2xl p-8 border
+      className="relative m-2 bg-gradient-to-br from-[#12121a] to-[#1a1a2e] rounded-2xl p-2 border
      border-gray-800/50 overflow-hidden"
     >
       <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:32px]" />
-      <div className="relative flex items-center gap-8">
-        <div className="relative group">
+      <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 w-full mb-2">
+        {/* Profile Image */}
+        <div className="relative group shrink-0">
           <div
-            className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full 
-          blur-xl opacity-50 group-hover:opacity-75 transition-opacity"
+            className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 
+      rounded-full blur-xl opacity-40 group-hover:opacity-70 transition-opacity"
           />
           <Image
             src={user.imageUrl}
             alt="Profile"
             width={96}
             height={96}
-            className=" rounded-full border-4 border-gray-800/50 relative z-10 group-hover:scale-105 transition-transform"
+            className="rounded-full border-4 border-gray-800/60 relative z-10 
+      group-hover:scale-105 transition-transform duration-300"
           />
           {userData.isPro && (
             <div
-              className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-purple-600 p-2
-             rounded-full z-20 shadow-lg animate-pulse"
+              className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-purple-600 
+        p-2 rounded-full z-20 shadow-md animate-pulse"
             >
               <Zap className="w-4 h-4 text-white" />
             </div>
           )}
         </div>
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-white">{userData.name}</h1>
+
+        {/* Profile Info */}
+        <div className="text-center sm:text-left">
+          <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">
+              {userData.name}
+            </h1>
+
             {userData.isPro && (
-              <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium">
-                Pro Member
-              </span>
+              <>
+                <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium">
+                  Pro Member
+                </span>
+                <button
+                  onClick={updateUserData}
+                  className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full 
+            text-sm font-medium hover:bg-purple-500/20 transition-colors"
+                >
+                  Toggle Pro
+                </button>
+              </>
+            )}
+
+            {user && !userData?.isPro && (
+              <Link
+                href="/pricing"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 
+          hover:border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
+          hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300 text-sm"
+              >
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-400 font-medium">Pro</span>
+              </Link>
             )}
           </div>
-          <p className="text-gray-400 flex items-center gap-2">
+
+          <p className="text-gray-400 flex justify-center sm:justify-start items-center gap-2 text-sm sm:text-base">
             <UserIcon className="w-4 h-4" />
             {userData.email}
           </p>
         </div>
       </div>
+
       <Heatmap data={executionHistory} />
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">

@@ -9,3 +9,8 @@
 *::-webkit-scrollbar {
   display: none; /* Chrome, Safari, Edge */
 }
+
+/* Hide Clerk "Secured by" footer */
+.cl-internal-l2l775 {
+  display: none !important;
+}

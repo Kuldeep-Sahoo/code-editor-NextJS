@@ -16,27 +16,23 @@ async function Header() {
   const convexUser = await convex.query(api.users.getUser, {
     userId: user?.id || "",
   });
-  console.log("from backend-->>", { convexUser });
 
   return (
     <div className="relative z-10">
       <div
-        className="flex flex-wrap items-center justify-between bg-[#0a0a0f]/80 backdrop-blur-xl 
-    p-2 rounded-lg space-y-3 sm:space-y-0"
+        className="flex flex-col sm:flex-row items-center justify-between bg-[#0a0a0f]/80 
+        backdrop-blur-xl p-2 rounded-lg gap-3 sm:gap-4"
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-center w-full lg:w-auto gap-3 lg:gap-8">
-          <Link
-            href="/"
-            className="flex items-center gap-3 group relative mx-auto lg:mx-0"
-          >
+        <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-6">
+          <Link href="/" className="flex items-center gap-3 group relative">
             <div
               className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
-          rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"
+              rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"
             />
             <div
               className="relative bg-gradient-to-br from-[#1a1a2e] to-[#0a0a0f] p-2 rounded-xl 
-          ring-1 ring-white/10 group-hover:ring-white/20 transition-all"
+              ring-1 ring-white/10 group-hover:ring-white/20 transition-all"
             >
               <CodeXmlIcon className="size-6 text-green-400 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500" />
             </div>
@@ -50,17 +46,17 @@ async function Header() {
             </div>
           </Link>
 
-          {/* Show snippets only on large screens */}
-          <nav className="hidden lg:flex items-center space-x-1">
+          {/* Snippets (visible always) */}
+          <nav className="items-center">
             <Link
               href="/snippets"
-              className="relative group flex items-center gap-2 px-4 py-1.5 rounded-lg text-gray-300 
-          bg-gray-800/50 hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/50 
-          transition-all duration-300 shadow-lg overflow-hidden"
+              className="relative group flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-300 
+              bg-gray-800/50 hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/50 
+              transition-all duration-300 shadow-lg overflow-hidden"
             >
               <div
                 className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 
-            opacity-0 group-hover:opacity-100 transition-opacity"
+                opacity-0 group-hover:opacity-100 transition-opacity"
               />
               <Code2 className="w-4 h-4 relative z-10 group-hover:rotate-3 transition-transform" />
               <span className="text-sm font-medium relative z-10 group-hover:text-white transition-colors">
@@ -71,31 +67,44 @@ async function Header() {
         </div>
 
         {/* Right Controls */}
-        <div className="flex flex-wrap justify-center lg:justify-end items-center gap-3 sm:gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-3">
-            <ThemeSelector />
-            <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+        <div
+          className="flex flex-wrap justify-end items-center gap-2 w-full lg:w-auto 
+  relative z-20"
+        >
+          <div className="flex flex-wrap items-center gap-2 flex-1 sm:flex-none min-w-0">
+            {/* Selectors */}
+            <div className="flex  items-center gap-2 min-w-0 w-full sm:w-auto">
+              <div className="flex-1 sm:flex-none min-w-[100px]">
+                <ThemeSelector />
+              </div>
+              <div className="flex-1 sm:flex-none min-w-[100px]">
+                <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
+              </div>
+            </div>
           </div>
 
+          {/* Pro Button */}
           {user && !convexUser?.isPro && (
             <Link
               href="/pricing"
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-500/20 
-          hover:border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
-          hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 
+      hover:border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
+      hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300 shrink-0 text-sm"
             >
-              <Sparkles className="w-4 h-4 text-amber-400 hover:text-amber-300" />
-              <span className="text-sm font-medium text-amber-400/90 hover:text-amber-300">
-                Pro
-              </span>
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              <span className="text-amber-400 font-medium">Pro</span>
             </Link>
           )}
 
+          {/* Run Button */}
           <SignedIn>
-            <RunButton />
+            <div className="shrink-0">
+              <RunButton />
+            </div>
           </SignedIn>
 
-          <div className=" lg:border-l border-gray-800 lg:pt-0 pl-0 lg:pl-3">
+          {/* Profile */}
+          <div className="border-gray-800 pt-1 sm:pt-0 pl-1 sm:pl-3 shrink-0">
             <HeaderProfileBtn />
           </div>
         </div>
