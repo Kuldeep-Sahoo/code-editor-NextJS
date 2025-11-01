@@ -49,9 +49,9 @@ const EditorPanel = () => {
 
   return (
     <div className="relative">
-      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl border border-white/[0.05] p-6">
+      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl  sm:border-white/[0.05]  p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 sm:flex-row flex-col gap-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1e1e2e] ring-1 ring-white/5">
               <Image
@@ -126,7 +126,7 @@ const EditorPanel = () => {
                 fontSize,
                 automaticLayout: true,
                 scrollBeyondLastLine: true,
-                padding: { top: 16, bottom: 16 },
+                padding: { top: 10, bottom: 16 },
                 renderWhitespace: "selection",
                 fontFamily: '"Fira Code", "Cascadia Code", Consolas, monospace',
                 fontLigatures: true,
@@ -137,6 +137,7 @@ const EditorPanel = () => {
                 lineHeight: 1.6,
                 letterSpacing: 0.5,
                 roundedSelection: true,
+                mousewheelZoom: true,
                 scrollbar: {
                   verticalScrollbarSize: 8,
                   horizontalScrollbarSize: 8,

@@ -4,15 +4,21 @@ import { useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { X } from "lucide-react";
 import toast from "react-hot-toast";
+import { useUser } from "@clerk/nextjs";
 
 function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
   const [title, setTitle] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const { language, getCode } = useCodeEditorStore();
   const createSnippet = useMutation(api.snippets.createSnippet);
-
+  const {isSignedIn}=useUser();
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if(!isSignedIn){
+      toast.error("You must be signed in to share a snippet");
+      return;
+    }
 
     setIsSharing(true);
 

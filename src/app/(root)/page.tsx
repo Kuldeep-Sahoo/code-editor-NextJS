@@ -4,19 +4,25 @@ import OutputPanel from "./_components/OutputPanel";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      <div className="p-4 mx-auto max-w-[1900px]">
+    <div className="min-h-screen bg-[#0a0a0f] overflow-hidden">
+      <div className="mx-auto max-w-[1900px]">
         <Header />
 
-        {/* Mobile: Stack | Desktop: Side-by-Side */}
-        <div className="flex flex-col lg:flex-row h-[85vh]">
-          {/* Left Panel (Resizable only on Desktop) */}
-          <div className="bg-gray-900 overflow-hidden lg:resize-x min-w-[600px] lg:max-w-[70%] lg:w-1/2 w-full h-full">
+        {/* Mobile: Stack | Desktop: Responsive Split */}
+        <div className="flex flex-col lg:flex-row gap-4 h-[85vh]">
+          {/* Left Panel (Editor) */}
+          <div
+            className="bg-gray-900 rounded-xl overflow-hidden h-[50vh] lg:h-full
+            flex-grow lg:flex-[3] min-w-[300px] lg:min-w-[40%] xl:min-w-[50%]"
+          >
             <EditorPanel />
           </div>
 
-          {/* Right Panel (Always Flexible) */}
-          <div className="bg-gray-800 overflow-auto flex-1">
+          {/* Right Panel (Output) */}
+          <div
+            className="bg-gray-800 rounded-xl overflow-hidden h-[45vh] lg:h-full
+            flex-grow lg:flex-[2] min-w-[250px]"
+          >
             <OutputPanel />
           </div>
         </div>

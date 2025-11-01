@@ -1,5 +1,5 @@
 import NavigationHeader from "@/components/NavigationHeader";
-import React from "react";
+import React, { useEffect } from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
@@ -7,6 +7,7 @@ import ProPlanView from "./_components/ProPlanView";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import LoginButtom from "../(root)/_components/LoginButtom";
 import PayButton from "./_components/PayButton"; // ✅ new client component
+import { redirect } from "next/navigation";
 
 const Page = async () => {
   const user = await currentUser();
@@ -14,6 +15,9 @@ const Page = async () => {
   const convexUser = await convex.query(api.users.getUser, {
     userId: user?.id || "",
   });
+    if (!user) {
+      redirect("/");
+    }
 
   if (convexUser?.isPro) return <ProPlanView />;
 

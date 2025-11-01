@@ -38,6 +38,14 @@ export const getSnippets = query({
   },
 });
 
+export const get3Snippets = query({
+  handler: async (ctx) => {
+    const snippets = await ctx.db.query("snippets").order("desc").collect();
+    const sorted = snippets.sort((a, b) => b._creationTime - a._creationTime);
+    return sorted.slice(0, 3);
+  },
+});
+
 export const deleteSnippet = mutation({
   args: {
     snippetId: v.id("snippets"),

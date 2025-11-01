@@ -9,12 +9,43 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import SnippetsPageSkeleton from "./_components/SnippetsPageSkeleton";
 import SnippetCard from "./_components/SnippetCard";
+import { useUser } from "@clerk/nextjs";
+import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
+import ThreeSnippetsPreview from "./_components/ThreeSnippetsPreview";
 function Page() {
+    const { isSignedIn,  isLoaded } = useUser();
+
   const snippets = useQuery(api.snippets.getSnippets);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
   console.log(snippets);
+
+  if (!isLoaded) {
+    return (
+      <div className="h-full bg-[#0a0a0f] flex items-center justify-center text-gray-400">
+        <NavigationHeader />
+        Loading...
+      </div>
+    );
+  }
+  if (!isSignedIn) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center text-center text-gray-300">
+        <NavigationHeader />
+
+        {/* view only 3 snippent */}
+        <ThreeSnippetsPreview />
+        <div className="mt-24 flex flex-col items-center gap-6 justify-center">
+          <h1 className="text-3xl font-bold mb-4">
+            {" "}
+            You need to be logged in to access all code snippets.
+          </h1>
+          <HeaderProfileBtn />
+        </div>
+      </div>
+    );
+  }
 
   // loading state
   if (snippets === undefined) {
