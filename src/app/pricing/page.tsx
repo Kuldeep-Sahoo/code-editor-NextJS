@@ -1,5 +1,4 @@
 import NavigationHeader from "@/components/NavigationHeader";
-import React, { useEffect } from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../convex/_generated/api";
