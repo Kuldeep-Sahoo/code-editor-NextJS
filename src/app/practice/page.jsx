@@ -11,6 +11,10 @@ import LoadingSkeleton from "../snippets/[id]/_components/LoadingSkeleton";
 import { Menu } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const ai = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
+
 export default function PracticePage() {
   const { isSignedIn, isLoaded } = useUser();
   const rawProblems = useQuery(api.problems.getAllProblems);
@@ -27,8 +31,54 @@ export default function PracticePage() {
   const [drawerOpen, setDrawerOpen] = useState(false); // ✅ added for mobile drawer
   const createSubmission = useMutation(api.problemsubmissions.createSubmission);
   const [user, setUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const handleChat = async () => {
+    if (!input.trim() || !selectedProblem) return;
 
+    const userMsg = { role: "user", content: input };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setInput("");
 
+    try {
+      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+      // Combine problem context + user conversation
+      const context = `
+        You are an expert coding assistant.
+        Provide clear, simple, and concise explanations or hints related to the coding problem below.
+        Avoid full solutions unless the user clearly asks for them.
+        Always give responses in plain text — no markdown, no **bold**, no code blocks.
+        Keep answers short, around 2-4 easy sentences.
+        Break complex ideas into simple parts using natural language.
+        If necessary, include only minimal code with proper indentation and no markdown.
+        Use the language ${selectedLanguage} for examples or explanations.
+        try to give hints instead of solutions.
+        try to give answer in bulleted format if possible.Dont use * fro that but use points. like 1. next line 2. next line 3.next line
+        if you provide code then provide the time and space complexity of the code simply.
+        if user ask for complexity directly in 2 word give response only with time and space complexity.
+
+        Problem Title: ${selectedProblem.title}
+        Description: ${selectedProblem.description}
+        User written code: ${code || "N/A"}
+        User Question: ${input}
+        `;
+
+      console.log({ context });
+
+      const result = await model.generateContent(context);
+      const text = await result.response.text();
+
+      setMessages([...newMessages, { role: "assistant", content: text }]);
+    } catch (err) {
+      console.error(err);
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: "⚠️ Error: Unable to fetch AI response." },
+      ]);
+    }
+  }
   // ✅ check for pro status
   useEffect(() => {
     (async () => {
@@ -260,9 +310,9 @@ export default function PracticePage() {
       </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col md:flex-row h-[90vh] bg-[#0a0a0f] text-white">
+      <div className="flex flex-col md:flex-row min-h-screen bg-[#0a0a0f] text-white overflow-hidden md:overflow-auto">
         {/* Left Panel (Visible only on Desktop) */}
-        <div className="hidden md:block w-[20%] bg-[#111] border-r border-gray-800 p-2 overflow-y-auto">
+        <div className="hidden md:block w-[15%] bg-[#111] border-r border-gray-800 p-2 overflow-y-auto">
           <h2 className="text-sm font-semibold mb-3 text-gray-300 text-center">
             Problems
           </h2>
@@ -283,8 +333,9 @@ export default function PracticePage() {
           ))}
         </div>
 
-        {/* Middle Panel */}
-        <div className="w-full md:w-[30%] p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-800">
+        {/* Problem Description */}
+        <div className="w-full md:w-[20%] p-4  border-b  md:border-b-0 md:border-r border-gray-800 flex-1 overflow-y-auto
+">
           {selectedProblem ? (
             <>
               <h1 className="text-lg md:text-xl font-semibold mb-2">
@@ -370,8 +421,8 @@ export default function PracticePage() {
           )}
         </div>
 
-        {/* Right Panel */}
-        <div className="w-full md:w-[50%] p-4 flex flex-col">
+        {/* Code Area */}
+        <div className="w-full md:w-[40%] p-4 border-r md:border-b-0 md:border-r flex flex-col border-gray-800  h-[92vh]">
           <div className="flex justify-between mb-2">
             <select
               value={selectedLanguage}
@@ -400,6 +451,59 @@ export default function PracticePage() {
             {isSubmitting ? "Running..." : "Submit Code"}
           </button>
         </div>
+
+        {/* AI Chat Area */}
+        <div className="w-full md:w-[25%] flex flex-col border-t md:border-t-0 md:border-l border-gray-800 bg-[#0c0c11] md:h-[90vh] h-[calc(100vh-64px)] max-h-[calc(100vh-64px)]">
+          {/* Header */}
+          <div className="p-3 md:p-4 border-b border-gray-800 shrink-0">
+            <h3 className="text-gray-200 font-semibold text-base">💬 Assistant</h3>
+          </div>
+
+          {/* Scrollable Messages */}
+          <div className="flex-1 overflow-y-auto px-3 md:px-4 py-2 md:py-3 text-sm bg-[#111] border-b border-gray-800">
+            {messages.length === 0 ? (
+              <p className="text-gray-500 text-center mt-12 text-sm">
+                Ask for hints, explanations, or guidance about this problem.
+              </p>
+            ) : (
+              messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`mb-3 whitespace-pre-wrap ${m.role === "user" ? "text-blue-400" : "text-gray-300"
+                    }`}
+                >
+                  <span className="font-bold text-green-700">
+                    {m.role === "user" ? "You: " : "AI: "}
+                  </span>
+                  {m.content}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Fixed Input Area */}
+          <div className="p-3 md:p-4 flex items-center gap-2 border-t border-gray-800 bg-[#0c0c11] shrink-0">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask something..."
+              className="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+            />
+            <button
+              onClick={handleChat}
+              disabled={!input.trim()}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-sm px-3 md:px-4 py-2 rounded-lg transition-all"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+
+
+
+
+
       </div>
     </>
   );

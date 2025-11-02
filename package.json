@@ -11,6 +11,8 @@
   "dependencies": {
     "@clerk/nextjs": "^6.12.0",
     "@clerk/themes": "^2.4.30",
+    "@google/genai": "^1.28.0",
+    "@google/generative-ai": "^0.24.1",
     "@monaco-editor/react": "^4.7.0",
     "@stripe/stripe-js": "^8.2.0",
     "convex": "^1.19.2",
