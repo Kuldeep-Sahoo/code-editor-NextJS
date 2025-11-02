@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery } from "convex/react";
 import CodeEditor from "./_components/Editor";
 import { api } from "../../../convex/_generated/api";
