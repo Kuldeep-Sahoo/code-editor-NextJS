@@ -28,6 +28,11 @@ import Editor from "@monaco-editor/react";
 
 const TABS = [
   {
+    id: "ProblemSubmissions",
+    label: "Problem Submissions",
+    icon: Code2,
+  },
+  {
     id: "executions",
     label: "Code Executions",
     icon: ListVideo,
@@ -36,11 +41,6 @@ const TABS = [
     id: "starred",
     label: "Starred Snippets",
     icon: Star,
-  },
-  {
-    id: "ProblemSubmissions",
-    label: "Problem Submissions",
-    icon: Code2,
   },
 ];
 
@@ -100,10 +100,9 @@ const Page = () => {
     const memoizedSubs = useMemo(() => submissions ?? [], [submissions]);
 
 
-  console.log({ submissions });
 
   const userData = useQuery(api.users.getUser, { userId: user?.id ?? "" });
-  console.log(userData);
+  // console.log({userData});
 
   const handleLoadMore = () => {
     if (executionStatus === "CanLoadMore") loadMore(5);
@@ -120,6 +119,7 @@ const Page = () => {
             userStats={userStats}
             userData={userData}
             user={user!}
+            submissions={submissions}
           />
         )}
 
@@ -173,7 +173,107 @@ const Page = () => {
               transition={{ duration: 0.2 }}
               className="p-6"
             >
-              {/* ACTIVE TAB IS EXECUTIONS: */}
+              {activeTab === "ProblemSubmissions" && (
+                <div className="space-y-6">
+                  {!submissions ? (
+                    <div className="text-center py-12">
+                      <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
+                      <h3 className="text-lg font-medium text-gray-400 mb-2">
+                        Loading submissions...
+                      </h3>
+                    </div>
+                  ) : memoizedSubs.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border border-gray-800/40 rounded-lg overflow-hidden">
+                        <thead className="bg-black/40 text-gray-400 text-sm uppercase">
+                          <tr>
+                            <th className="px-4 py-3">Problem ID</th>
+                            <th className="px-4 py-3">Title</th>
+                            <th className="px-4 py-3">Language</th>
+                            <th className="px-4 py-3 text-center">Passed</th>
+                            <th className="px-4 py-3 text-center">Status</th>
+                            <th className="px-4 py-3 text-center">Submitted</th>
+                            <th className="px-4 py-3 text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800/50">
+                          {memoizedSubs.map((s: any) => (
+                            <tr
+                              key={s._id}
+                              className="hover:bg-black/30 transition"
+                            >
+                              {/* Problem ID */}
+                              <td
+                                className="px-4 py-3 text-gray-300 max-w-[120px] truncate"
+                                title={s.problemId?.toString()}
+                              >
+                                {s.problemId
+                                  ? `${s.problemId.toString().slice(0, 8)}`
+                                  : "—"}
+                              </td>
+
+                              {/* Problem Title */}
+                              <td
+                                className="px-4 py-3 text-gray-300 max-w-[200px] truncate"
+                                title={s.problemTitle || "Untitled"}
+                              >
+                                {s.problemTitle
+                                  ? `${s.problemTitle.slice(0, 20)}...`
+                                  : "Untitled"}
+                              </td>
+
+                              <td className="px-4 py-3 text-gray-400">
+                                {s.language}
+                              </td>
+                              <td className="px-4 py-3 text-center text-gray-300">
+                                {s.passedCount}/{s.totalCount}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span
+                                  className={`px-2 py-1 text-xs rounded-full ${
+                                    s.status === "Accepted"
+                                      ? "bg-green-500/10 text-green-400"
+                                      : "bg-red-500/10 text-red-400"
+                                  }`}
+                                >
+                                  {s.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center text-gray-500 text-sm">
+                                {new Date(s.submittedAt).toLocaleString()}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedCode(s.code);
+                                    setSelectedTitle(
+                                      s.problemTitle || "Untitled"
+                                    );
+                                    setIsDialogOpen(true);
+                                  }}
+                                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition"
+                                >
+                                  <Eye className="w-4 h-4" /> View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Code className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-400 mb-2">
+                        No submissions yet
+                      </h3>
+                      <p className="text-gray-500">
+                        Solve problems to see your submission history!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
               {activeTab === "executions" && (
                 <div className="space-y-6">
                   {executions?.map((execution) => (
@@ -353,106 +453,6 @@ const Page = () => {
                       </h3>
                       <p className="text-gray-500">
                         Start exploring and star the snippets you find useful!
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "ProblemSubmissions" && (
-                <div className="space-y-6">
-                  {!submissions ? (
-                    <div className="text-center py-12">
-                      <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
-                      <h3 className="text-lg font-medium text-gray-400 mb-2">
-                        Loading submissions...
-                      </h3>
-                    </div>
-                  ) : memoizedSubs.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border border-gray-800/40 rounded-lg overflow-hidden">
-                        <thead className="bg-black/40 text-gray-400 text-sm uppercase">
-                          <tr>
-                            <th className="px-4 py-3">Problem ID</th>
-                            <th className="px-4 py-3">Title</th>
-                            <th className="px-4 py-3">Language</th>
-                            <th className="px-4 py-3 text-center">Passed</th>
-                            <th className="px-4 py-3 text-center">Status</th>
-                            <th className="px-4 py-3 text-center">Submitted</th>
-                            <th className="px-4 py-3 text-center">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-800/50">
-                          {memoizedSubs.map((s: any) => (
-                            <tr
-                              key={s._id}
-                              className="hover:bg-black/30 transition"
-                            >
-                              {/* Problem ID */}
-                              <td
-                                className="px-4 py-3 text-gray-300 max-w-[120px] truncate"
-                                title={s.problemId?.toString()}
-                              >
-                                {s.problemId
-                                  ? `${s.problemId.toString().slice(0, 8)}`
-                                  : "—"}
-                              </td>
-
-                              {/* Problem Title */}
-                              <td
-                                className="px-4 py-3 text-gray-300 max-w-[200px] truncate"
-                                title={s.problemTitle || "Untitled"}
-                              >
-                                {s.problemTitle
-                                  ? `${s.problemTitle.slice(0, 20)}...`
-                                  : "Untitled"}
-                              </td>
-
-                              <td className="px-4 py-3 text-gray-400">
-                                {s.language}
-                              </td>
-                              <td className="px-4 py-3 text-center text-gray-300">
-                                {s.passedCount}/{s.totalCount}
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <span
-                                  className={`px-2 py-1 text-xs rounded-full ${
-                                    s.status === "Accepted"
-                                      ? "bg-green-500/10 text-green-400"
-                                      : "bg-red-500/10 text-red-400"
-                                  }`}
-                                >
-                                  {s.status}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-center text-gray-500 text-sm">
-                                {new Date(s.submittedAt).toLocaleString()}
-                              </td>
-                              <td className="px-4 py-3 text-center">
-                                <button
-                                  onClick={() => {
-                                    setSelectedCode(s.code);
-                                    setSelectedTitle(s.title);
-                                    setIsDialogOpen(true);
-                                  }}
-                                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition"
-                                >
-                                  <Eye className="w-4 h-4" /> View
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Code className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-400 mb-2">
-                        No submissions yet
-                      </h3>
-                      <p className="text-gray-500">
-                        Solve problems to see your submission history!
                       </p>
                     </div>
                   )}

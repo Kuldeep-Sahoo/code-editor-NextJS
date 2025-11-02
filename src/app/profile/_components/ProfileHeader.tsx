@@ -1,5 +1,5 @@
 import { useQuery } from "convex/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import {
   Activity,
@@ -42,9 +42,59 @@ interface ProfileHeaderProps {
     isPro: boolean;
   };
   user: UserResource;
+  submissions: any[];
 }
 
-function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
+function ProfileHeader({
+  userStats,
+  userData,
+  user,
+  submissions,
+}: ProfileHeaderProps) {
+const [submissionsHistory, setSubmissionsHistory] = useState<
+  { date: string; success: number; error: number }[]
+>([]);
+
+useEffect(() => {
+  if (!submissions || submissions.length === 0) return;
+
+  const history = submissions.reduce(
+    (
+      acc: { date: string; success: number; error: number }[],
+      s: {
+        submittedAt: number;
+        status?: string;
+      }
+    ) => {
+      const dateObj = new Date(s.submittedAt);
+      const date = `${dateObj.getFullYear()}-${String(
+        dateObj.getMonth() + 1
+      ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+
+      const existing = acc.find((x) => x.date === date);
+      const isSuccess =
+        s.status?.toLowerCase() === "accepted" ||
+        s.status?.toLowerCase() === "success";
+
+      if (existing) {
+        if (isSuccess) existing.success += 1;
+        else existing.error += 1;
+      } else {
+        acc.push({
+          date,
+          success: isSuccess ? 1 : 0,
+          error: isSuccess ? 0 : 1,
+        });
+      }
+
+      return acc;
+    },
+    []
+  );
+
+  setSubmissionsHistory(history);
+}, [submissions]);
+
   const starredSnippets = useQuery(api.snippets.getStarredSnippets);
   const STATS = [
     {
@@ -178,7 +228,15 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
         </div>
       </div>
 
+      {/* Heatmap */}
+      <h2 className="text-lg font-semibold text-white mb-4 mt-6">
+        Execution History
+      </h2>
       <Heatmap data={executionHistory} />
+      <h2 className="text-lg font-semibold text-white mb-4 mt-6">
+        Submissions History
+      </h2>
+      <Heatmap data={submissionsHistory} />
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         {STATS.map((stat, index) => (

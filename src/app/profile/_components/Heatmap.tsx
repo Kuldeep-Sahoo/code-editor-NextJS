@@ -55,10 +55,9 @@ const generateCalendar = (data: DayData[]) => {
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(2025, month, day);
-      const week = Math.floor((day + date.getDay()) / 7);
-
+      const week = Math.floor((day - 1 + date.getDay()) / 7); // ✅ correct alignment
       if (!fullYear[month][week]) fullYear[month][week] = {};
-      fullYear[month][week][day] = { success: 0, error: 0 }; // Default: no activity
+      fullYear[month][week][day] = { success: 0, error: 0 };
     }
   }
 
@@ -67,14 +66,14 @@ const generateCalendar = (data: DayData[]) => {
     const [year, month, day] = date.split("-").map(Number);
     if (year === 2025) {
       const dateObj = new Date(2025, month - 1, day);
-      const week = Math.floor((day + dateObj.getDay()) / 7);
-
+      const week = Math.floor((day - 1 + dateObj.getDay()) / 7); // ✅ same fix here
       fullYear[month - 1][week][day] = { success, error };
     }
   });
 
   return fullYear;
 };
+
 
 const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
   const calendar = generateCalendar(data);
