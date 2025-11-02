@@ -5,7 +5,6 @@ import CodeEditor from "./_components/Editor";
 import { api } from "../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 import { useUser } from "@clerk/nextjs";
-import ThreeSnippetsPreview from "../snippets/_components/ThreeSnippetsPreview";
 import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
 
 export default function PracticePage() {
