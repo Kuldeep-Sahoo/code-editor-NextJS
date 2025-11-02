@@ -10,6 +10,7 @@ export default defineSchema({
     name: v.string(), // User's name
     isPro: v.boolean(), // Boolean indicating if the user is a pro member
     proSince: v.optional(v.number()), // Optional field for the date since the user became a pro member
+    role: v.optional(v.string()),
     lemonSqueezyCustomerId: v.optional(v.string()), // Optional field for Lemon Squeezy customer ID
     lemonSqueezyOrderId: v.optional(v.string()), // Optional field for Lemon Squeezy order ID
   }).index("by_user_id", ["userId"]), // Index the table by userId for quick lookup
@@ -48,4 +49,30 @@ export default defineSchema({
     .index("by_user_id", ["userId"]) // Index the table by userId for quick lookup
     .index("by_snippet_id", ["snippetId"]) // Index the table by snippetId for quick lookup
     .index("by_user_id_and_snippet_id", ["userId", "snippetId"]), // Index by both userId and snippetId for quick lookup
+  problems: defineTable({
+    problemId: v.optional(v.string()), // optional custom id like "p1"
+    title: v.string(), // "Sum of Two Numbers"
+    description: v.string(), // problem statement
+    difficulty: v.optional(v.string()), // "easy" | "medium" | "hard"
+    languageSupport: v.optional(v.array(v.string())), // ["cpp", "python", "javascript", "java"]
+
+    testCases: v.array(
+      v.object({
+        input: v.string(), // e.g. "1 2"
+        expectedOutput: v.string(), // e.g. "3"
+      })
+    ),
+
+    constraints: v.optional(v.string()), // e.g. "1 <= A, B <= 10^9"
+    baseCode: v.optional(
+      v.object({
+        cpp: v.optional(v.string()), // C++ base code
+        python: v.optional(v.string()), // Python base code
+        javascript: v.optional(v.string()), // JavaScript base code
+        java: v.optional(v.string()), // Java base code
+      })
+    ),
+
+    createdAt: v.number(), // Date.now()
+  }),
 });

@@ -3,7 +3,7 @@ import { ConvexHttpClient } from "convex/browser";
 import React from "react";
 import { api } from "../../../../convex/_generated/api";
 import Link from "next/link";
-import { Code2, CodeXmlIcon, Sparkles } from "lucide-react";
+import { Code2, CodeXmlIcon, FileCode2, LucideFormInput, Sparkles } from "lucide-react";
 import ThemeSelector from "./ThemeSelector";
 import LanguageSelector from "./LanguageSelector";
 import { SignedIn } from "@clerk/nextjs";
@@ -64,6 +64,42 @@ async function Header() {
               </span>
             </Link>
           </nav>
+          <nav className="items-center">
+            <Link
+              href="/practice"
+              className="relative group flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-300 
+              bg-gray-800/50 hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/50 
+              transition-all duration-300 shadow-lg overflow-hidden"
+            >
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 
+                opacity-0 group-hover:opacity-100 transition-opacity"
+              />
+              <FileCode2 className="w-4 h-4 relative z-10 group-hover:rotate-3 transition-transform" />
+              <span className="text-sm font-medium relative z-10 group-hover:text-white transition-colors">
+                Practice
+              </span>
+            </Link>
+          </nav>
+          {user && convexUser?.role === "admin" && (
+            <nav className="items-center">
+              <Link
+                href="/admin"
+                className="relative group flex items-center gap-2 px-3 py-1.5 rounded-lg text-gray-300 
+              bg-gray-800/50 hover:bg-blue-500/10 border border-gray-800 hover:border-blue-500/50 
+              transition-all duration-300 shadow-lg overflow-hidden"
+              >
+                <div
+                  className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 
+                opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+                <LucideFormInput className="w-4 h-4 relative z-10 group-hover:rotate-3 transition-transform" />
+                <span className="text-sm font-medium relative z-10 group-hover:text-white transition-colors">
+                  A
+                </span>
+              </Link>
+            </nav>
+          )}
         </div>
 
         {/* Right Controls */}
