@@ -13,7 +13,8 @@ import LoadingSkeleton from "./_components/LoadingSkeleton";
 
 export default function PracticePage() {
   const { isSignedIn, isLoaded } = useUser();
-  const problems = useQuery(api.problems.getAllProblems);
+  const rawProblems = useQuery(api.problems.getAllProblems);
+  const problems = useMemo(() => rawProblems || [], [rawProblems]);
 
   const [selectedProblem, setSelectedProblem] = useState(
     null
