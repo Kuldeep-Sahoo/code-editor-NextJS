@@ -28,6 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "**/*.css"
-, "src/app/practice/page.jsx"  ],
+, "src/app/practice/page.jsx", "src/components/NavigationHeader.tsx"  ],
   "exclude": ["node_modules"]
 }

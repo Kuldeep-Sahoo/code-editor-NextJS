@@ -21,11 +21,11 @@ async function Header() {
     <div className="relative z-10">
       <div
         className="flex flex-col sm:flex-row items-center justify-between bg-[#0a0a0f]/80 
-        backdrop-blur-xl p-2 rounded-lg gap-3 sm:gap-4"
+        backdrop-blur-xl p-1 rounded-lg gap-1 sm:gap-2"
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-6">
-          <Link href="/" className="flex items-center gap-3 group relative">
+        <div className="flex items-center justify-between w-full sm:w-auto gap-2 sm:gap-3 px-2">
+          <Link href="/" className="flex items-center gap-1 group relative">
             <div
               className="absolute -inset-2 bg-gradient-to-r from-blue-500/20 to-purple-500/20 
               rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"
@@ -37,10 +37,10 @@ async function Header() {
               <CodeXmlIcon className="size-6 text-green-400 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500" />
             </div>
             <div className="flex flex-col">
-              <span className="block text-lg font-semibold bg-gradient-to-r from-green-400 via-blue-300 to-purple-400 text-transparent bg-clip-text">
+              <span className="hidden md:block text-lg font-semibold bg-gradient-to-r from-green-400 via-blue-300 to-purple-400 text-transparent bg-clip-text">
                 EditorForU
               </span>
-              <span className="block text-xs text-blue-400/60 font-medium">
+              <span className="hidden md:block text-xs text-blue-400/60 font-medium">
                 Your Code Editor
               </span>
             </div>
@@ -95,7 +95,7 @@ async function Header() {
                 />
                 <LucideFormInput className="w-4 h-4 relative z-10 group-hover:rotate-3 transition-transform" />
                 <span className="text-sm font-medium relative z-10 group-hover:text-white transition-colors">
-                  A
+                  Admin
                 </span>
               </Link>
             </nav>
@@ -104,16 +104,15 @@ async function Header() {
 
         {/* Right Controls */}
         <div
-          className="flex flex-wrap justify-end items-center gap-2 w-full lg:w-auto 
-  relative z-20"
+          className="flex flex-wrap justify-end items-center gap-2 w-full lg:w-auto relative z-20 px-2"
         >
           <div className="flex flex-wrap items-center gap-2 flex-1 sm:flex-none min-w-0">
             {/* Selectors */}
-            <div className="flex  items-center gap-2 min-w-0 w-full sm:w-auto">
-              <div className="flex-1 sm:flex-none min-w-[100px]">
+            <div className="flex  items-center gap-2  w-full sm:w-auto">
+              <div className="flex-1 sm:flex-none min-w-[10px]">
                 <ThemeSelector />
               </div>
-              <div className="flex-1 sm:flex-none min-w-[100px]">
+              <div className="flex-1 sm:flex-none min-w-[90px]">
                 <LanguageSelector hasAccess={Boolean(convexUser?.isPro)} />
               </div>
             </div>

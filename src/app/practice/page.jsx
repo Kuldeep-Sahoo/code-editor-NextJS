@@ -6,31 +6,27 @@ import { api } from "../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 import { useUser } from "@clerk/nextjs";
 import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
-import Confetti from "react-confetti"; // 🎉 added
+import Confetti from "react-confetti";
 import LoadingSkeleton from "./_components/LoadingSkeleton";
-
-
+import { Menu } from "lucide-react";
 
 export default function PracticePage() {
   const { isSignedIn, isLoaded } = useUser();
   const rawProblems = useQuery(api.problems.getAllProblems);
   const problems = useMemo(() => rawProblems || [], [rawProblems]);
 
-  const [selectedProblem, setSelectedProblem] = useState(
-    null
-  );
+  const [selectedProblem, setSelectedProblem] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("cpp");
   const [code, setCode] = useState("");
   const [testResults, setTestResults] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false); // 🎉 new
-  const [isPro, setIsPro] = useState(false); // ✅ added
-  const [isLoadingProStatus, setIsLoadingProStatus] = useState(true); // ✅ added
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+  const [isLoadingProStatus, setIsLoadingProStatus] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false); // ✅ added for mobile drawer
 
-
-  // ✅ check for pro status when page loads
+  // ✅ check for pro status
   useEffect(() => {
-
     (async () => {
       try {
         setIsLoadingProStatus(true);
@@ -51,7 +47,6 @@ export default function PracticePage() {
     }
   }, [problems, selectedProblem]);
 
-
   useEffect(() => {
     if (selectedProblem && selectedProblem.baseCode) {
       const base = selectedProblem.baseCode[selectedLanguage];
@@ -67,13 +62,7 @@ export default function PracticePage() {
     setTestResults([]);
     setShowConfetti(false);
 
-    const languageMap = {
-      cpp: 54,
-      python: 71,
-      javascript: 63,
-      java: 62,
-    };
-
+    const languageMap = { cpp: 54, python: 71, javascript: 63, java: 62 };
     const results = [];
 
     for (const test of selectedProblem.testCases) {
@@ -113,11 +102,9 @@ export default function PracticePage() {
     setTestResults(results);
     setIsSubmitting(false);
 
-    // 🎉 trigger confetti if all tests passed
-    const allPassed = results.every((r) => r.passed);
-    if (allPassed) {
+    if (results.every((r) => r.passed)) {
       setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 4000); // hide after 4s
+      setTimeout(() => setShowConfetti(false), 15000);
     }
   };
 
@@ -143,6 +130,7 @@ export default function PracticePage() {
       </div>
     );
   }
+
   if (isLoadingProStatus) {
     return (
       <div className="h-full bg-[#0a0a0f] flex items-center justify-center text-gray-400">
@@ -151,6 +139,7 @@ export default function PracticePage() {
       </div>
     );
   }
+
   if (!isPro) {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center text-center text-gray-300">
@@ -160,33 +149,99 @@ export default function PracticePage() {
     );
   }
 
-
   return (
     <>
-      {showConfetti && <Confetti numberOfPieces={300} recycle={false} />} {/* 🎉 celebration */}
-
+      {showConfetti && (
+        <div className="fixed inset-0 z-[9999] pointer-events-none">
+          <Confetti
+            width={typeof window !== "undefined" ? window.innerWidth : 0}
+            height={typeof window !== "undefined" ? window.innerHeight : 0}
+            numberOfPieces={1500}
+            recycle={false}
+          />
+        </div>
+      )}
       <NavigationHeader />
+
+      {/* Mobile Drawer Toggle */}
+      <div className="md:hidden flex items-center justify-between p-3 bg-[#111] border-b border-gray-800">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="flex items-center gap-2 text-sm text-gray-300"
+        >
+          <Menu size={18} /> Problems
+        </button>
+        <span className="text-sm text-gray-400">
+          {selectedProblem?.problemId?.toUpperCase()}. {selectedProblem?.title}
+        </span>
+      </div>
+
+      {/* Drawer Overlay (Mobile) */}
+      {drawerOpen && (
+        <div
+          onClick={() => setDrawerOpen(false)}
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+        ></div>
+      )}
+
+      {/* Drawer Panel (Mobile) */}
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-[#111] border-r border-gray-800 z-40 transform transition-transform duration-300 md:hidden ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+      >
+        <div className="p-3 border-b border-gray-700 flex justify-between items-center">
+          <h2 className="text-sm font-semibold text-gray-300">Problems</h2>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="text-gray-400 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="p-2 overflow-y-auto h-[calc(100%-40px)]">
+          {problems.map((p) => (
+            <div
+              key={p._id}
+              onClick={() => {
+                setSelectedProblem(p);
+                setDrawerOpen(false);
+              }}
+              className={`cursor-pointer p-2 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
+                ? "bg-blue-700"
+                : "bg-[#1a1a1a] hover:bg-[#222]"
+                }`}
+            >
+              {p?.problemId?.toUpperCase()}. {p.title}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Layout */}
       <div className="flex flex-col md:flex-row h-[90vh] bg-[#0a0a0f] text-white">
-        {/* Left Panel */}
-        <div className="w-full md:w-[20%] bg-[#111] border-b md:border-b-0 md:border-r border-gray-800 p-2 overflow-y-auto">
+        {/* Left Panel (Visible only on Desktop) */}
+        <div className="hidden md:block w-[20%] bg-[#111] border-r border-gray-800 p-2 overflow-y-auto">
           <h2 className="text-sm font-semibold mb-3 text-gray-300 text-center">
             Problems
           </h2>
           {problems.map((p) => (
             <div
               key={p._id}
-              onClick={() => setSelectedProblem(p)}
+              onClick={() => {
+                setSelectedProblem(p);
+                setDrawerOpen(false);
+              }}
               className={`cursor-pointer p-2 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
                 ? "bg-blue-700"
                 : "bg-[#1a1a1a] hover:bg-[#222]"
                 }`}
             >
-              {p.title}
+              {p?.problemId?.toUpperCase()}. {p.title}
             </div>
           ))}
         </div>
 
-        {/* Middle Panel - Problem Description + Results */}
+        {/* Middle Panel */}
         <div className="w-full md:w-[30%] p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-800">
           {selectedProblem ? (
             <>
@@ -200,7 +255,6 @@ export default function PracticePage() {
                 <strong>Difficulty:</strong> {selectedProblem.difficulty}
               </p>
 
-              {/* Test Cases */}
               {selectedProblem.testCases?.length > 0 && (
                 <div className="mt-4">
                   <h3 className="font-semibold mb-2 text-gray-300">
@@ -222,7 +276,6 @@ export default function PracticePage() {
                 </div>
               )}
 
-              {/* 🧩 Test Results */}
               {testResults.length > 0 && (
                 <div className="mt-6">
                   <h3 className="font-semibold mb-3 text-gray-300">
@@ -275,7 +328,7 @@ export default function PracticePage() {
           )}
         </div>
 
-        {/* Right Panel - Editor */}
+        {/* Right Panel */}
         <div className="w-full md:w-[50%] p-4 flex flex-col">
           <div className="flex justify-between mb-2">
             <select
@@ -291,11 +344,7 @@ export default function PracticePage() {
           </div>
 
           <div className="flex-1 min-h-[300px] md:min-h-0">
-            <CodeEditor
-              code={code}
-              setCode={setCode}
-              language={selectedLanguage}
-            />
+            <CodeEditor code={code} setCode={setCode} language={selectedLanguage} />
           </div>
 
           <button

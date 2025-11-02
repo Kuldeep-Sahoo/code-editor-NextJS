@@ -9,7 +9,7 @@ export default function Home() {
         <Header />
 
         {/* Mobile: Stack | Desktop: Responsive Split */}
-        <div className="flex flex-col lg:flex-row gap-4 h-[85vh]">
+        <div className="flex flex-col lg:flex-row gap-4 h-[90vh]">
           {/* Left Panel (Editor) */}
           <div
             className="bg-gray-900 rounded-xl overflow-hidden h-[50vh] lg:h-full
@@ -20,8 +20,8 @@ export default function Home() {
 
           {/* Right Panel (Output) */}
           <div
-            className="bg-gray-800 rounded-xl overflow-hidden h-[45vh] lg:h-full
-            flex-grow lg:flex-[2] min-w-[250px]"
+            className="bg-gray-800 rounded-xl 
+             lg:flex-[2] min-w-[250px] h-[45vh] sm:h-[55vh] lg:h-full"
           >
             <OutputPanel />
           </div>

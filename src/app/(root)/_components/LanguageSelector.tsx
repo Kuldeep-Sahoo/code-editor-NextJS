@@ -41,7 +41,7 @@ const LanguageSelector = ({ hasAccess }: { hasAccess: boolean }) => {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md
+        className={`w-full flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 ml-1 sm:py-1 rounded-md
                     bg-[#1e1e2e]/80 border border-gray-800/50 hover:border-gray-700
                     transition-all text-xs sm:text-sm ${
                       !hasAccess && language !== "javascript"
@@ -58,7 +58,7 @@ const LanguageSelector = ({ hasAccess }: { hasAccess: boolean }) => {
             className="object-contain w-full h-full"
           />
         </div>
-        <span className="text-gray-300 truncate max-w-[20px] sm:max-w-none">
+        <span className="text-gray-300 truncate w-full sm:max-w-none">
           {currentLanguageObj.label}
         </span>
         <ChevronDownIcon
@@ -75,7 +75,7 @@ const LanguageSelector = ({ hasAccess }: { hasAccess: boolean }) => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 mt-2 w-52 sm:w-64 bg-[#1e1e2e]/95 rounded-lg border border-[#313244] shadow-xl z-50 py-2 backdrop-blur-xl"
+            className="absolute top-full left-0 mt-2 w-full sm:w-full bg-[#1e1e2e]/95 rounded-lg border border-[#313244] shadow-xl z-50 py-2 backdrop-blur-xl"
           >
             <p className="px-3 pb-2 text-xs text-gray-400 border-b border-gray-700/40">
               Select Language

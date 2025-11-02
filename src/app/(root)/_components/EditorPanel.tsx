@@ -6,10 +6,11 @@ import React, { useEffect, useState } from "react";
 import { defineMonacoThemes, LANGUAGE_CONFIG } from "../_constants";
 import Image from "next/image";
 import { RotateCcwIcon, ShareIcon, TypeIcon } from "lucide-react";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import { Editor } from "@monaco-editor/react";
 import { EditorPanelSkeleton } from "./EditorPanelSkeleton";
 import ShareSnippetDialog from "./ShareSnippetDialog";
+
 const EditorPanel = () => {
   const clerk = useClerk();
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
@@ -24,9 +25,13 @@ const EditorPanel = () => {
     if (editor) editor.setValue(newCode);
   }, [language, editor]);
 
+  // ✅ Font size responsive logic
   useEffect(() => {
     const savedFontSize = localStorage.getItem("editor-font-size");
-    if (savedFontSize) setFontSize(parseInt(savedFontSize));
+    let size = savedFontSize ? parseInt(savedFontSize) : 16;
+    if (window.innerWidth < 640) size = Math.max(12, size - 2);
+    setFontSize(size);
+    localStorage.setItem("editor-font-size", size.toString());
   }, [setFontSize]);
 
   const handleRefresh = () => {
@@ -48,10 +53,10 @@ const EditorPanel = () => {
   if (!mounted) return null;
 
   return (
-    <div className="relative">
-      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl  sm:border-white/[0.05]  p-6">
+    <div className="relative w-full">
+      <div className="relative bg-[#12121a]/90 backdrop-blur rounded-xl sm:border-white/[0.05] p-2">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4 sm:flex-row flex-col gap-4">
+        <div className="hidden md:flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#1e1e2e] ring-1 ring-white/5">
               <Image
@@ -61,14 +66,15 @@ const EditorPanel = () => {
                 height={24}
               />
             </div>
-            <div>
+            <div >
               <h2 className="text-sm font-medium text-white">Code Editor</h2>
               <p className="text-xs text-gray-500">
                 Write and execute your code
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex flex-wrap items-center justify-center gap-3">
             {/* Font Size Slider */}
             <div className="flex items-center gap-3 px-3 py-2 bg-[#1e1e2e] rounded-lg ring-1 ring-white/5">
               <TypeIcon className="size-4 text-gray-400" />
@@ -99,23 +105,23 @@ const EditorPanel = () => {
               <RotateCcwIcon className="size-4 text-gray-400" />
             </motion.button>
 
-            {/* Share Button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setIsShareDialogOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r
-               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg overflow-hidden bg-gradient-to-r
+               from-blue-500 to-blue-600 opacity-90 hover:opacity-100 transition-opacity text-sm sm:text-base"
             >
               <ShareIcon className="size-4 text-white" />
-              <span className="text-sm font-medium text-white ">Share</span>
+              <span className="font-medium text-white">Share</span>
             </motion.button>
           </div>
         </div>
+
         <div className="relative group rounded-xl overflow-hidden ring-1 ring-white/[0.05]">
-          {clerk.loaded && (
+          {clerk.loaded ? (
             <Editor
-              height="600px"
+              height="100vh"
               language={LANGUAGE_CONFIG[language].monacoLanguage}
               onChange={handleEditorChange}
               theme={theme}
@@ -144,11 +150,12 @@ const EditorPanel = () => {
                 },
               }}
             />
+          ) : (
+            <EditorPanelSkeleton />
           )}
-
-          {!clerk.loaded && <EditorPanelSkeleton />}
         </div>
       </div>
+
       {isShareDialogOpen && (
         <ShareSnippetDialog onClose={() => setIsShareDialogOpen(false)} />
       )}

@@ -40,9 +40,10 @@ const LoadingSkeleton = ({ showProOverlay = false }) => {
       </div>
 
       {/* 🔥 Blur Overlay + Pro Message */}
+      🔥 Blur Overlay + Pro Message
       {showProOverlay && (
-        <div className="absolute inset-0 backdrop-blur-md bg-black/60 flex flex-col items-center justify-center text-center px-6">
-          <div className="flex flex-col items-center gap-6 justify-center text-gray-100">
+        <div className="absolute inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center text-center px-6 pointer-events-none">
+          <div className="flex flex-col items-center gap-6 justify-center text-gray-100 pointer-events-auto">
             <h1 className="text-2xl md:text-3xl font-bold mb-2">
               This is a Pro feature. Please upgrade to Pro to access practice
               problems.
@@ -50,8 +51,8 @@ const LoadingSkeleton = ({ showProOverlay = false }) => {
             <Link
               href="/pricing"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 
-                hover:border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
-                hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300 shrink-0 text-sm"
+          hover:border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
+          hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300 shrink-0 text-sm"
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
               <span className="text-amber-400 font-medium">Get Pro</span>
