@@ -35,7 +35,7 @@ export const addProblem = mutation({
     createdAt: v.number(),
   },
   handler: async (ctx, args) => {
-    console.log({args});
+    // console.log({args});
     await ctx.db.insert("problems", {
       ...args,
       createdAt: Date.now(),

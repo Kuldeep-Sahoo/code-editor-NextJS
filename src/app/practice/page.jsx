@@ -90,6 +90,7 @@ export default function PracticePage() {
       }
     })();
   }, []);
+  
   useEffect(() => {
     (async () => {
       try {

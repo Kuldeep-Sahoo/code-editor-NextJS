@@ -125,7 +125,6 @@ export const getUserStats = query({
   },
 });
 
-
 export const getExecutionHistory = query({
   args: {
     userId: v.string(), // expect userId as argument
@@ -162,6 +161,13 @@ export const getExecutionHistory = query({
       success,
       error,
     }));
+  },
+});
+
+
+export const getAllExecutions = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("codeExecutions").order("desc").collect();
   },
 });
 

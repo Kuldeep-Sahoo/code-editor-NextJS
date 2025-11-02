@@ -56,6 +56,26 @@ export const updateUserProStatus = mutation({
       isPro: args.isPro,
       proSince: args.proSince,
     });
-    console.log("done updating user pro status");
+    // console.log("done updating user pro status");
+  },
+});
+
+export const getAllUsers = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("users").collect();
+  },
+});
+
+export const updateUser = mutation({
+  args: {
+    id: v.id("users"),
+    data: v.object({
+      isPro: v.optional(v.boolean()),
+      role: v.optional(v.string()),
+      proSince: v.optional(v.number()),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, args.data);
   },
 });

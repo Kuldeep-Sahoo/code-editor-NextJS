@@ -52,3 +52,10 @@ export const getSubmissionsByUserId = query({
     return userSubs ?? [];
   },
 });
+
+
+export const getAllSubmissions = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("problemsubmissions").order("desc").collect();
+  },
+});

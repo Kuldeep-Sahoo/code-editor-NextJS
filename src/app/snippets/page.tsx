@@ -79,7 +79,7 @@ function Page() {
     );
   }
   const languages = [...new Set(snippets.map((s) => s.language))];
-  console.log(languages);
+  // console.log(languages);
   const popularLanguages = languages.slice(0, 6);
 
   const filteredSnippets = snippets.filter((snippet) => {

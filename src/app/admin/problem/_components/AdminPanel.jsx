@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
+import { api } from "../../../../../convex/_generated/api";
 
 const AdminPanel = () => {
     const addProblem = useMutation(api.problems.addProblem);
