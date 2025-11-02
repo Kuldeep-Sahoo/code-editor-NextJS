@@ -75,4 +75,30 @@ export default defineSchema({
 
     createdAt: v.number(), // Date.now()
   }),
+  problemsubmissions: defineTable({
+    userId: v.string(), // ID of the user who submitted
+    problemId: v.string(), // reference to problems table
+    problemTitle: v.optional(v.string()), // reference to problems table
+    language: v.string(), // e.g. "cpp", "python"
+    code: v.string(), // submitted source code
+    output: v.optional(v.string()), // combined output (if needed)
+    error: v.optional(v.string()), // combined error message
+    status: v.optional(v.string()), // "Accepted", "Wrong Answer", etc.
+    passedCount: v.optional(v.number()), // how many test cases passed
+    totalCount: v.optional(v.number()), // total test cases run
+    results: v.optional(
+      v.array(
+        v.object({
+          input: v.string(),
+          expected: v.string(),
+          actual: v.string(),
+          passed: v.boolean(),
+        })
+      )
+    ),
+    submittedAt: v.number(), // Date.now()
+  })
+    .index("by_user_id", ["userId"])
+    .index("by_problem_id", ["problemId"])
+    .index("by_user_and_problem", ["userId", "problemId"]),
 });

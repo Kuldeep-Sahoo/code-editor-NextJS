@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import CodeEditor from "./_components/Editor";
 import { api } from "../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 import { useUser } from "@clerk/nextjs";
 import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
 import Confetti from "react-confetti";
-import LoadingSkeleton from "./_components/LoadingSkeleton";
+import LoadingSkeleton from "../snippets/[id]/_components/LoadingSkeleton";
 import { Menu } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function PracticePage() {
   const { isSignedIn, isLoaded } = useUser();
@@ -24,8 +25,21 @@ export default function PracticePage() {
   const [isPro, setIsPro] = useState(false);
   const [isLoadingProStatus, setIsLoadingProStatus] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false); // ✅ added for mobile drawer
+  const createSubmission = useMutation(api.problemsubmissions.createSubmission);
+  const [user, setUser] = useState(null);
+
 
   // ✅ check for pro status
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/getUser");
+        const data = await res.json();
+        setUser(data.user);
+      } catch {
+      }
+    })();
+  }, []);
   useEffect(() => {
     (async () => {
       try {
@@ -56,6 +70,7 @@ export default function PracticePage() {
     }
   }, [selectedProblem, selectedLanguage]);
 
+
   const handleSubmit = async () => {
     if (!selectedProblem) return;
     setIsSubmitting(true);
@@ -64,6 +79,8 @@ export default function PracticePage() {
 
     const languageMap = { cpp: 54, python: 71, javascript: 63, java: 62 };
     const results = [];
+    let passedCount = 0;
+    const totalCount = selectedProblem.testCases.length;
 
     for (const test of selectedProblem.testCases) {
       try {
@@ -78,31 +95,56 @@ export default function PracticePage() {
         });
 
         const data = await res.json();
+        if (data.message?.includes("exceeded the DAILY quota")) {
+          toast.error(
+            "You've reached the daily submission limit for your plan. Please try again later."
+          );
+          break;
+        }
+
         const output = (data.stdout || "").trim();
         const expected = (test.expectedOutput || "").trim();
+        const passed = output === expected;
+        if (passed) passedCount++;
 
         results.push({
           input: test.input,
           expected,
-          output,
-          passed: output === expected,
-          error: data.stderr || data.compile_output || null,
+          actual: output,
+          passed,
         });
       } catch (err) {
         results.push({
           input: test.input,
           expected: test.expectedOutput,
-          output: "Error executing code",
+          actual: "Error executing code",
           passed: false,
         });
-        console.log(err);
+        console.error(err);
       }
+    }
+
+    // ✅ Store submission in Convex
+    try {
+      await createSubmission({
+        userId: user._id,
+        problemId: selectedProblem.problemId,
+        problemTitle: selectedProblem.title,
+        language: selectedLanguage,
+        code,
+        passedCount,
+        totalCount,
+        status: passedCount === totalCount ? "Accepted" : "Failed",
+        results,
+      });
+    } catch (err) {
+      console.error("Error saving submission:", err);
     }
 
     setTestResults(results);
     setIsSubmitting(false);
 
-    if (results.every((r) => r.passed)) {
+    if (passedCount === totalCount) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 15000);
     }

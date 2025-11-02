@@ -16,7 +16,6 @@ const LoadingSkeleton = ({ showProOverlay = false }) => {
           ></div>
         ))}
       </div>
-
       {/* Middle Panel */}
       <div className="w-full md:w-[30%] p-4 border-b md:border-b-0 md:border-r border-gray-800">
         <div className="h-6 bg-gray-700 rounded w-3/4 mb-3"></div>
@@ -31,22 +30,20 @@ const LoadingSkeleton = ({ showProOverlay = false }) => {
           ></div>
         ))}
       </div>
-
       {/* Right Panel */}
       <div className="w-full md:w-[50%] p-4 flex flex-col">
         <div className="h-8 bg-gray-700 rounded w-32 mb-3"></div>
         <div className="flex-1 bg-[#1a1a1a] rounded-lg border border-gray-800 mb-4"></div>
         <div className="h-10 bg-blue-700/50 rounded-md"></div>
       </div>
-
       {/* 🔥 Blur Overlay + Pro Message */}
       🔥 Blur Overlay + Pro Message
       {showProOverlay && (
         <div className="absolute inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center text-center px-6 pointer-events-none">
           <div className="flex flex-col items-center gap-6 justify-center text-gray-100 pointer-events-auto">
             <h1 className="text-2xl md:text-3xl font-bold mb-2">
-              This is a Pro feature. Please upgrade to Pro to access practice
-              problems.
+              This is a Pro feature. Please upgrade to Pro to access snippets
+              details{" "}
             </h1>
             <Link
               href="/pricing"

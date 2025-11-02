@@ -2,7 +2,7 @@
 import NavigationHeader from "@/components/NavigationHeader";
 import { useQuery } from "convex/react";
 import { useParams } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
 import SnippetLoadingSkeleton from "./_components/SnippetLoadingSkeleton";
@@ -12,10 +12,25 @@ import { defineMonacoThemes, LANGUAGE_CONFIG } from "@/app/(root)/_constants";
 import CopyButton from "./_components/CopyButtom";
 import { Comments } from "./_components/Comments";
 import Image from "next/image";
+import LoadingSkeleton from "./_components/LoadingSkeleton";
 const Page = () => {
   const { id } = useParams();
   const snippenId = id as Id<"snippets">;
-  
+  const [isPro, setIsPro] = useState(false);
+  // ✅ check for pro status
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/getProStatus");
+        const data = await res.json();
+        setIsPro(data.isPro);
+      } catch {
+        setIsPro(false);
+      } finally {
+      }
+    })();
+  }, []);
+
   const snippet = useQuery(api.snippets.getSnippetByid, {
     snippetId: snippenId as Id<"snippets">,
   });
@@ -24,7 +39,14 @@ const Page = () => {
   });
 
   if (!snippet) return <SnippetLoadingSkeleton />;
-
+  if (!isPro) {
+    return (
+      <div className="h-full w-full flex flex-col items-center justify-center text-center text-gray-300">
+        <NavigationHeader />
+        <LoadingSkeleton showProOverlay={true} />
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       <NavigationHeader />

@@ -6,12 +6,14 @@ import {
   ChevronRight,
   Clock,
   Code,
+  Code2,
+  Eye,
   ListVideo,
   Loader2,
   Star,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import ProfileHeaderSkeleton from "./_components/ProfileHeaderSkeleton";
 import { AnimatePresence } from "framer-motion";
@@ -21,6 +23,9 @@ import Link from "next/link";
 import StarButton from "@/components/StarButton";
 import CodeBlock from "./_components/CodeBlock";
 import ProfileHeader from "./_components/ProfileHeader";
+import Editor from "@monaco-editor/react";
+
+
 const TABS = [
   {
     id: "executions",
@@ -32,14 +37,24 @@ const TABS = [
     label: "Starred Snippets",
     icon: Star,
   },
+  {
+    id: "ProblemSubmissions",
+    label: "Problem Submissions",
+    icon: Code2,
+  },
 ];
 
 const Page = () => {
   const { user, isLoaded } = useUser();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"executions" | "starred">(
-    "executions"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "executions" | "starred" | "ProblemSubmissions"
+  >("ProblemSubmissions");
+    const [selectedCode, setSelectedCode] = useState<string | null>(null);
+    const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+
 
   const userStats = useQuery(api.codeExecutions.getUserStats, {
     userId: user?.id ?? "",
@@ -58,6 +73,34 @@ const Page = () => {
     },
     { initialNumItems: 5 }
   );
+
+  const [convexUser, setConvexUser] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/getUser");
+        const data = await res.json();
+        setConvexUser(data.user);
+      } catch {}
+    })();
+  }, []);
+
+  const rawSubmissions = useQuery(
+    api.problemsubmissions.getSubmissionsByUserId,
+    {
+      userId: (convexUser as any)?._id ?? "",
+    }
+  );
+
+  // Always returns [] if Convex hasn’t loaded yet
+  const submissions = React.useMemo(
+    () => rawSubmissions ?? [],
+    [rawSubmissions]
+  );
+    const memoizedSubs = useMemo(() => submissions ?? [], [submissions]);
+
+
+  console.log({ submissions });
 
   const userData = useQuery(api.users.getUser, { userId: user?.id ?? "" });
   console.log(userData);
@@ -315,10 +358,143 @@ const Page = () => {
                   )}
                 </div>
               )}
+
+              {activeTab === "ProblemSubmissions" && (
+                <div className="space-y-6">
+                  {!submissions ? (
+                    <div className="text-center py-12">
+                      <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
+                      <h3 className="text-lg font-medium text-gray-400 mb-2">
+                        Loading submissions...
+                      </h3>
+                    </div>
+                  ) : memoizedSubs.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border border-gray-800/40 rounded-lg overflow-hidden">
+                        <thead className="bg-black/40 text-gray-400 text-sm uppercase">
+                          <tr>
+                            <th className="px-4 py-3">Problem ID</th>
+                            <th className="px-4 py-3">Title</th>
+                            <th className="px-4 py-3">Language</th>
+                            <th className="px-4 py-3 text-center">Passed</th>
+                            <th className="px-4 py-3 text-center">Status</th>
+                            <th className="px-4 py-3 text-center">Submitted</th>
+                            <th className="px-4 py-3 text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800/50">
+                          {memoizedSubs.map((s: any) => (
+                            <tr
+                              key={s._id}
+                              className="hover:bg-black/30 transition"
+                            >
+                              {/* Problem ID */}
+                              <td
+                                className="px-4 py-3 text-gray-300 max-w-[120px] truncate"
+                                title={s.problemId?.toString()}
+                              >
+                                {s.problemId
+                                  ? `${s.problemId.toString().slice(0, 8)}`
+                                  : "—"}
+                              </td>
+
+                              {/* Problem Title */}
+                              <td
+                                className="px-4 py-3 text-gray-300 max-w-[200px] truncate"
+                                title={s.problemTitle || "Untitled"}
+                              >
+                                {s.problemTitle
+                                  ? `${s.problemTitle.slice(0, 20)}...`
+                                  : "Untitled"}
+                              </td>
+
+                              <td className="px-4 py-3 text-gray-400">
+                                {s.language}
+                              </td>
+                              <td className="px-4 py-3 text-center text-gray-300">
+                                {s.passedCount}/{s.totalCount}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <span
+                                  className={`px-2 py-1 text-xs rounded-full ${
+                                    s.status === "Accepted"
+                                      ? "bg-green-500/10 text-green-400"
+                                      : "bg-red-500/10 text-red-400"
+                                  }`}
+                                >
+                                  {s.status}
+                                </span>
+                              </td>
+                              <td className="px-4 py-3 text-center text-gray-500 text-sm">
+                                {new Date(s.submittedAt).toLocaleString()}
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <button
+                                  onClick={() => {
+                                    setSelectedCode(s.code);
+                                    setSelectedTitle(s.title);
+                                    setIsDialogOpen(true);
+                                  }}
+                                  className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition"
+                                >
+                                  <Eye className="w-4 h-4" /> View
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12">
+                      <Code className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-400 mb-2">
+                        No submissions yet
+                      </h3>
+                      <p className="text-gray-500">
+                        Solve problems to see your submission history!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
+      {isDialogOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="relative w-[90%] max-w-4xl bg-[#0a0a0a] border border-gray-800 rounded-xl shadow-lg p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3 border-b border-gray-800 pb-2">
+              <h2 className="text-gray-200 text-lg font-medium">
+                {selectedTitle}- View Submitted Code
+              </h2>
+              <button
+                onClick={() => setIsDialogOpen(false)}
+                className="text-gray-400 hover:text-white transition text-xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Monaco Editor */}
+            <div className="overflow-hidden rounded-md">
+              <Editor
+                height="60vh"
+                theme="vs-dark"
+                defaultLanguage="cpp"
+                value={selectedCode || ""}
+                options={{
+                  readOnly: true,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
