@@ -143,7 +143,7 @@ function ProfileHeader({ userStats, userData, user }: ProfileHeaderProps) {
               {userData.name}
             </h1>
 
-            {userData.isPro && (
+            {userData?.isPro && (
               <>
                 <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium">
                   Pro Member

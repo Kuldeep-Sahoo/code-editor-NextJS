@@ -11,12 +11,21 @@ function ShareSnippetDialog({ onClose }: { onClose: () => void }) {
   const [isSharing, setIsSharing] = useState(false);
   const { language, getCode } = useCodeEditorStore();
   const createSnippet = useMutation(api.snippets.createSnippet);
-  const {isSignedIn}=useUser();
+  const { isSignedIn } = useUser();
+
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if(!isSignedIn){
+    if (!isSignedIn) {
       toast.error("You must be signed in to share a snippet");
+      return;
+    }
+    const res = await fetch("/api/getProStatus");
+    const data = await res.json();
+    const isPro = data?.isPro;
+
+    if (!isPro) {
+      toast.error("You must be a Pro user to share snippets");
       return;
     }
 

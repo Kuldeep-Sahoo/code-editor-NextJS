@@ -1,3 +1,5 @@
+"use client";
+
 import HeaderProfileBtn from "@/app/(root)/_components/HeaderProfileBtn";
 import { SignedOut } from "@clerk/nextjs";
 import { Code2, CodeXmlIcon, Sparkles, Menu } from "lucide-react";
