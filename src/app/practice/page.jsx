@@ -45,7 +45,7 @@ export default function PracticePage() {
   }, []);
 
   useEffect(() => {
-    if (problems.length > 0 && !selectedProblem) {
+    if (problems && problems.length > 0 && !selectedProblem) {
       setSelectedProblem(problems[0]);
     }
   }, [problems, selectedProblem]);
@@ -154,7 +154,7 @@ export default function PracticePage() {
     return (
       <div className="h-full w-full flex flex-col items-center justify-center text-center text-gray-300">
         <NavigationHeader />
-        <LoadingSkeleton showProOverlay= {true}/>
+        <LoadingSkeleton showProOverlay={true} />
       </div>
     );
   }
