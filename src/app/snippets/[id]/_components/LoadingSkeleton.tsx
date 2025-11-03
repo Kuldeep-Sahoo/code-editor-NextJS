@@ -42,8 +42,7 @@ const LoadingSkeleton = ({ showProOverlay = false }) => {
         <div className="absolute inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center text-center px-6 pointer-events-none">
           <div className="flex flex-col items-center gap-6 justify-center text-gray-100 pointer-events-auto">
             <h1 className="text-2xl md:text-3xl font-bold mb-2">
-              This is a Pro feature. Please upgrade to Pro to access snippets
-              details{" "}
+              You need to be logged in to access practice problems{" "}
             </h1>
             <Link
               href="/pricing"

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Code2, Users, Sparkles, ProjectorIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NavigationHeader from "@/components/NavigationHeader";
+import Loader from "@/components/CubeLoader";
 
 const cards = [
     {
@@ -73,17 +74,17 @@ const AdminPage = () => {
 
     if (loading) {
         return (
-            <div className=" flex flex-col items-center justify-center text-gray-400 bg-[#0a0a0f]">
+            <div className="  text-gray-400">
                 <NavigationHeader />
-                Loading...
+                <Loader/>
             </div>
         );
     }
 
     return (
-        <div className=" bg-[#0a0a0f] text-white flex flex-col items-center">
+        <div className="  text-white flex flex-col items-center">
             <NavigationHeader />
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
+            <h1 className="mt-4 text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 text-transparent bg-clip-text">
                 Admin Dashboard
             </h1>
             <p className="text-gray-400 mb-10 text-center max-w-md">

@@ -81,7 +81,7 @@ async function Header() {
               </span>
             </Link>
           </nav>
-          {user && convexUser?.role === "admin" && (
+          {user && convexUser?.role === "admin" ? (
             <nav className="items-center">
               <Link
                 href="/admin"
@@ -99,13 +99,24 @@ async function Header() {
                 </span>
               </Link>
             </nav>
+          ) : (
+            <Link
+              href="/profile"
+              className="relative group flex items-center gap-1 p-1 px-2 
+                rounded-md text-gray-300 bg-gray-800/50 hover:bg-blue-500/10 
+                border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-lg"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <LucideFormInput className="w-3 h-3 sm:w-4 sm:h-4 relative z-10 group-hover:rotate-3 transition-transform" />
+              <span className="text-[11px] sm:text-sm font-medium relative z-10 group-hover:text-white transition-colors">
+                Profile
+              </span>
+            </Link>
           )}
         </div>
 
         {/* Right Controls */}
-        <div
-          className="flex flex-wrap justify-end items-center gap-2 w-full lg:w-auto relative z-20 px-2"
-        >
+        <div className="flex flex-wrap justify-end items-center gap-2 w-full lg:w-auto relative z-20 px-2">
           <div className="flex flex-wrap items-center gap-2 flex-1 sm:flex-none min-w-0">
             {/* Selectors */}
             <div className="flex  items-center gap-2  w-full sm:w-auto">

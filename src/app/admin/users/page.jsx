@@ -163,7 +163,7 @@ const AdminUsersPage = () => {
                         </>
                       ) : (
                         <>
-                          <td className="p-3">{u.role || "user"}</td>
+                          <td className={`${u.role==='admin'?"text-red-400":""} p-3`}>{u.role || "user"}</td>
                           <td className="p-3">{u.isPro ? "✅" : "❌"}</td>
                           <td className="p-3">
                             {u.proSince

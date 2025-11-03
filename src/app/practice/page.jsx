@@ -8,11 +8,12 @@ import { useUser } from "@clerk/nextjs";
 import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
 import Confetti from "react-confetti";
 import LoadingSkeleton from "../snippets/[id]/_components/LoadingSkeleton";
-import { Fullscreen, FullscreenIcon, LockIcon, LockOpen, Maximize, Menu, Minimize } from "lucide-react";
+import { Maximize, Menu, Minimize } from "lucide-react";
 import toast from "react-hot-toast";
 import Split from "react-split";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import Loader from "@/components/CubeLoader";
 
 const ai = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GOOGLE_API_KEY);
 
@@ -261,9 +262,11 @@ export default function PracticePage() {
 
   if (!isLoaded) {
     return (
-      <div className="h-full bg-[#0a0a0f] flex items-center justify-center text-gray-400">
+      <div className="h-full text-gray-400">
         <NavigationHeader />
-        Loading...
+        <div>
+          <Loader />
+        </div>
       </div>
     );
   }
@@ -274,7 +277,7 @@ export default function PracticePage() {
         <NavigationHeader />
         <div className="mt-24 flex flex-col items-center gap-6 justify-center">
           <h1 className="text-3xl font-bold mb-4">
-            You need to be logged in to access all code snippets.
+            You need to be logged in to access practice problems
           </h1>
           <HeaderProfileBtn />
         </div>
@@ -284,9 +287,9 @@ export default function PracticePage() {
 
   if (isLoadingProStatus) {
     return (
-      <div className="h-full bg-[#0a0a0f] flex items-center justify-center text-gray-400">
+      <div className="h-full  text-gray-400">
         <NavigationHeader />
-        Loading...
+        <Loader/>
       </div>
     );
   }
