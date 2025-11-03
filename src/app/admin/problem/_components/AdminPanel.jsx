@@ -4,11 +4,13 @@ import { useMutation, useQuery } from "convex/react";
 import NavigationHeader from "@/components/NavigationHeader";
 import { api } from "../../../../../convex/_generated/api";
 import toast from "react-hot-toast";
+import { Trash2 } from "lucide-react";
 
 const AdminPanel = () => {
     const addProblem = useMutation(api.problems.addProblem);
     const updateProblem = useMutation(api.problems.updateProblem);
     const problems = useQuery(api.problems.getAllProblems);
+    const deleteProblemById = useMutation(api.problems.deleteProblemById);
 
     const emptyProblem = {
         problemId: "",
@@ -97,6 +99,16 @@ const AdminPanel = () => {
             },
         });
     };
+
+    const deleteProblem = async (id) => {
+        try {
+            await deleteProblemById({ id });
+            toast.success("Problem deleted Successfully")
+        } catch (e) {
+            console.log(e);
+            toast.error("some error occured")
+        }
+    }
 
     return (
         <>
@@ -254,12 +266,19 @@ const AdminPanel = () => {
                                         : "bg-gray-800 hover:bg-gray-700"
                                         }`}
                                 >
-                                    <h3 className="font-semibold text-base md:text-lg">
-                                        {p.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-400 capitalize">
-                                        {p.difficulty || "N/A"}
-                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <div>
+
+                                            <h3 className="font-semibold text-base md:text-lg">
+                                                {p.title}
+                                            </h3>
+                                            <p className="text-sm text-gray-400 capitalize">
+                                                {p.difficulty || "N/A"}
+                                            </p>
+                                        </div>
+                                        <div className="text-yellow-400 hover:text-red-800" onClick={() => deleteProblem(p._id)}><Trash2 />
+                                        </div>
+                                    </div>
                                 </div>
                             ))
                         ) : (

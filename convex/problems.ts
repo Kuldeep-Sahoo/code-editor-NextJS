@@ -71,3 +71,12 @@ export const updateProblem = mutation({
     return { success: true };
   },
 });
+
+// delete a problem
+export const deleteProblemById = mutation({
+  args: { id: v.id("problems") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
+    return { success: true };
+  },
+});

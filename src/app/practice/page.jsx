@@ -58,11 +58,17 @@ export default function PracticePage() {
         try to give answer in bulleted format if possible.Dont use * fro that but use points. like 1. next line 2. next line 3.next line
         if you provide code then provide the time and space complexity of the code simply.
         if user ask for complexity directly in 2 word give response only with time and space complexity.
-
+        Pro User have access to practice problem, ai chat, view all snippets, and share snippets, can run all type of languages (normal user have only run javascript code) 
+        Pro plane is 399 rupees for life time 
+        User Status :${isPro ? "User is a Pro Member" : "User is not a Pro member"}
         Problem Title: ${selectedProblem.title}
         Description: ${selectedProblem.description}
         User written code: ${code || "N/A"}
-        User Question: ${input}
+
+        Most of the the time give code responses or hints
+        -------------------
+        The above is the context for you the important is user Question which is bellow this
+        User Question(important): ${input}
         `;
 
       console.log({ context });
@@ -90,7 +96,7 @@ export default function PracticePage() {
       }
     })();
   }, []);
-  
+
   useEffect(() => {
     (async () => {
       try {
@@ -148,12 +154,12 @@ export default function PracticePage() {
         const data = await res.json();
         if (data.message?.includes("exceeded the DAILY quota")) {
           toast.error(
-            "You've reached the daily submission limit for your plan. Please try again later."
+            "Our daily submission limit exceeded. Please try again Yesterday."
           );
           break;
         }
 
-        const output = (data.stdout || "").trim();
+        const output = data.stdout.trim();
         const expected = (test.expectedOutput || "").trim();
         const passed = output === expected;
         if (passed) passedCount++;
@@ -397,7 +403,7 @@ export default function PracticePage() {
                             res.passed ? "text-green-400" : "text-red-400"
                           }
                         >
-                          {res.output || "No Output"}
+                          {res.actual || "No Output"}
                         </span>
                       </p>
                       {res.error && (

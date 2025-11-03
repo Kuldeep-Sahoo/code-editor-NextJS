@@ -13,9 +13,29 @@ export default function CodeEditor({ code, setCode, language }) {
                 theme="vs-dark"
                 options={{
                     fontSize: 14,
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
+                    minimap: { enabled: true },
+                    scrollBeyondLastLine: true,
                     automaticLayout: true,
+                    wordWrap: "on",
+                    formatOnPaste: true,
+                    formatOnType: true,
+                    autoClosingBrackets: "always",
+                    autoClosingQuotes: "always",
+                    suggestOnTriggerCharacters: true,
+                    acceptSuggestionOnEnter: "on",
+                    tabCompletion: "on",
+                    quickSuggestions: true,
+                    snippetSuggestions: "top",
+                    parameterHints: { enabled: true },
+                    suggestSelection: "first",
+                    cursorSmoothCaretAnimation: "on",
+                    cursorBlinking: "smooth",
+                    lineNumbers: "on",
+                    folding: true,
+                    renderWhitespace: "selection",
+                    smoothScrolling: true,
+                    mouseWheelZoom: true,
+
                 }}
             />
         </div>
