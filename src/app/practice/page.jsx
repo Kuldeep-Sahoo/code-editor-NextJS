@@ -179,6 +179,7 @@ export default function PracticePage() {
     try {
       await createSubmission({
         userId: user._id,
+        userName: user.name,
         problemId: selectedProblem.problemId,
         problemTitle: selectedProblem.title,
         language: selectedLanguage,

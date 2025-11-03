@@ -4,6 +4,7 @@ import { mutation, query } from "./_generated/server";
 export const createSubmission = mutation({
   args: {
     userId: v.string(),
+    userName:v.string(),
     problemId: v.string(),
     problemTitle: v.string(),
     language: v.string(),
@@ -28,6 +29,7 @@ export const createSubmission = mutation({
     return await ctx.db.insert("problemsubmissions", {
       ...args,
       problemId: args.problemId,
+      userName:args.userName,
       problemTitle: args.problemTitle,
       output: args.output ?? "",
       error: args.error ?? "",

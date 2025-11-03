@@ -72,10 +72,69 @@ export const updateUser = mutation({
     data: v.object({
       isPro: v.optional(v.boolean()),
       role: v.optional(v.string()),
-      proSince: v.optional(v.number()),
     }),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, args.data);
+  },
+});
+
+export const sendMessage = mutation({
+  args: {
+    userId: v.string(),
+    sender: v.string(),
+    senderId: v.string(),
+    senderName: v.string(),
+    message: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
+      .unique();
+    if (!user) throw new Error("User not found");
+
+    const newMessage = {
+      sender: args.sender,
+      senderId: args.senderId,
+      senderName: args.senderName,
+      message: args.message,
+      timestamp: Date.now(),
+    };
+
+    await ctx.db.patch(user._id, {
+      chatWithAdmin: [...(user.chatWithAdmin || []), newMessage],
+    });
+  },
+});
+
+
+export const getChat = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
+      .unique();
+    return user?.chatWithAdmin || [];
+  },
+});
+
+export const getUnrepliedCount = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q) => q.eq("userId", args.userId))
+      .unique();
+
+    if (!user || !user.chatWithAdmin || user.chatWithAdmin.length === 0) {
+      return 0;
+    }
+
+    const lastMsg = user.chatWithAdmin[user.chatWithAdmin.length - 1];
+
+    // ✅ Show badge only if last message is from user
+    return lastMsg.sender === "user" ? 1 : 0;
   },
 });

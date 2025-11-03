@@ -1,3 +1,4 @@
+// profile/page.tsx
 "use client";
 import NavigationHeader from "@/components/NavigationHeader";
 import { useUser } from "@clerk/nextjs";
@@ -23,7 +24,9 @@ import Link from "next/link";
 import StarButton from "@/components/StarButton";
 import CodeBlock from "./_components/CodeBlock";
 import ProfileHeader from "./_components/ProfileHeader";
+import UserChatWithAdmin from "./_components/UserChatWithAdmin";
 import Editor from "@monaco-editor/react";
+import { MessageSquare } from "lucide-react";
 
 
 const TABS = [
@@ -42,13 +45,18 @@ const TABS = [
     label: "Starred Snippets",
     icon: Star,
   },
+  {
+    id: "chatWithAdmin",
+    label: "Chat with Admin",
+    icon: MessageSquare,
+  },
 ];
 
 const Page = () => {
   const { user, isLoaded } = useUser();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "executions" | "starred" | "ProblemSubmissions"
+    "executions" | "starred" | "ProblemSubmissions" | "chatWithAdmin"
   >("ProblemSubmissions");
     const [selectedCode, setSelectedCode] = useState<string | null>(null);
     const [selectedTitle, setSelectedTitle] = useState<string | null>(null);
@@ -130,7 +138,7 @@ const Page = () => {
         >
           {/* Tabs */}
           <div className="border-b border-gray-800/50">
-            <div className="flex space-x-1 p-4">
+            <div className="flex space-x-1 p-2">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
@@ -171,7 +179,7 @@ const Page = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="p-6"
+              className="p-2"
             >
               {activeTab === "ProblemSubmissions" && (
                 <div className="space-y-6">
@@ -382,8 +390,6 @@ const Page = () => {
                   )}
                 </div>
               )}
-
-              {/* ACTIVE TAB IS STARS: */}
               {activeTab === "starred" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {starredSnippets?.map((snippet) => (
@@ -457,6 +463,9 @@ const Page = () => {
                     </div>
                   )}
                 </div>
+              )}
+              {activeTab === "chatWithAdmin" && (
+                <UserChatWithAdmin userId={user?.id} convexUser={convexUser} />
               )}
             </motion.div>
           </AnimatePresence>

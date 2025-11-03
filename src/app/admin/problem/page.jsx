@@ -5,7 +5,7 @@ import AdminPanel from "./_components/AdminPanel";
 import {api} from "../../../../convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 
-export default async function AdminPage() {
+export default async function Page() {
   const user = await currentUser();
 
   // If not logged in → redirect to home

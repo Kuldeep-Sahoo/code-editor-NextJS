@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import NavigationHeader from "@/components/NavigationHeader";
 import { api } from "../../../../../convex/_generated/api";
+import toast from "react-hot-toast";
 
 const AdminPanel = () => {
     const addProblem = useMutation(api.problems.addProblem);
@@ -43,7 +44,7 @@ const AdminPanel = () => {
 
     const handleSubmit = async () => {
         if (!problemData.title || !problemData.description) {
-            alert("⚠️ Please fill in the title and description.");
+            toast.error("⚠️ Please fill in the title and description.");
             return;
         }
 
@@ -61,10 +62,10 @@ const AdminPanel = () => {
                     baseCode: problemData.baseCode,
                 },
             });
-            alert("✅ Problem updated successfully!");
+            toast.success("Snippet shared successfully");
         } else {
             await addProblem({ ...problemData, createdAt: Date.now() });
-            alert("✅ Problem added successfully!");
+            toast.success("Snippet shared successfully");
         }
 
         setProblemData(emptyProblem);

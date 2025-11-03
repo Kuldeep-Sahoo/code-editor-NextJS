@@ -1,17 +1,44 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import { api } from "../../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 
 export default function CodeExecutionsPage() {
+    const { user, isLoaded } = useUser();
+    const router = useRouter();
+    const [isChecking, setIsChecking] = useState(true);
+
+    const convexUser = useQuery(api.users.getUser, {
+        userId: user?.id || "",
+    });
+
+    useEffect(() => {
+        if (!isLoaded) return;
+        if (!user) {
+            router.push("/");
+            return;
+        }
+
+        if (convexUser && convexUser.role !== "admin") {
+            router.push("/");
+            return;
+        }
+
+        if (convexUser) {
+            setIsChecking(false);
+        }
+    }, [isLoaded, user, convexUser, router]);
+
     const executions = useQuery(api.codeExecutions.getAllExecutions);
 
-    if (executions === undefined) {
+    if (isChecking || executions === undefined) {
         return (
-            <div className="min-h-[90vh] bg-[#0a0a0f] text-gray-400">
+            <div className="">
                 <NavigationHeader />
-                Loading...
+                <p>Loading...</p>
             </div>
         );
     }

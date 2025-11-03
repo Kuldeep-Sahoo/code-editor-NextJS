@@ -13,6 +13,17 @@ export default defineSchema({
     role: v.optional(v.string()),
     lemonSqueezyCustomerId: v.optional(v.string()), // Optional field for Lemon Squeezy customer ID
     lemonSqueezyOrderId: v.optional(v.string()), // Optional field for Lemon Squeezy order ID
+    chatWithAdmin: v.optional(
+      v.array(
+        v.object({
+          sender: v.string(), // "user" or "admin"
+          senderId: v.string(), // ID of the sender
+          senderName: v.string(), // Name of the sender
+          message: v.string(), // Message content
+          timestamp: v.number(), // Timestamp of the message
+        })
+      )
+    ),
   }).index("by_user_id", ["userId"]), // Index the table by userId for quick lookup
 
   // Define the 'codeExecutions' table to store code execution details
@@ -77,6 +88,7 @@ export default defineSchema({
   }),
   problemsubmissions: defineTable({
     userId: v.string(), // ID of the user who submitted
+    userName: v.optional(v.string()), // Name of the user who submitted
     problemId: v.string(), // reference to problems table
     problemTitle: v.optional(v.string()), // reference to problems table
     language: v.string(), // e.g. "cpp", "python"

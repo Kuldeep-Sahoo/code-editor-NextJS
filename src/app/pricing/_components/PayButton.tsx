@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 declare global {
   interface Window {
@@ -73,7 +74,7 @@ export default function PayButton() {
             // ✅ Redirect with params
             window.location.href = `/payment-success?${query}`;
           } else {
-            alert("Payment verification failed!");
+            toast.error("Payment verification failed");
           }
         },
         prefill: {
@@ -86,7 +87,7 @@ export default function PayButton() {
       rzp.open();
     } catch (err) {
       console.error("Payment Error:", err);
-      alert("Payment failed. Please try again.");
+      toast.error("Payment failed. Please try again.");
     } finally {
       setLoading(false);
     }
