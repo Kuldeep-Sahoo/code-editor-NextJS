@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import CodeEditor from "./_components/Editor";
 import { api } from "../../../convex/_generated/api";
@@ -8,8 +8,9 @@ import { useUser } from "@clerk/nextjs";
 import HeaderProfileBtn from "../(root)/_components/HeaderProfileBtn";
 import Confetti from "react-confetti";
 import LoadingSkeleton from "../snippets/[id]/_components/LoadingSkeleton";
-import { Menu } from "lucide-react";
+import { Fullscreen, FullscreenIcon, LockIcon, LockOpen, Maximize, Menu, Minimize } from "lucide-react";
 import toast from "react-hot-toast";
+import Split from "react-split";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
@@ -28,11 +29,67 @@ export default function PracticePage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isPro, setIsPro] = useState(false);
   const [isLoadingProStatus, setIsLoadingProStatus] = useState(true);
-  const [drawerOpen, setDrawerOpen] = useState(false); // ✅ added for mobile drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const createSubmission = useMutation(api.problemsubmissions.createSubmission);
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+
+  const [isProblemListCollapsed, setIsProblemListCollapsed] = useState(false);
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
+  const [isFullFocus, setIsFullFocus] = useState(false);
+
+  const splitRef = useRef(null);
+
+  const toggleProblemList = () => {
+    if (splitRef.current) {
+      const newProblemCollapsed = !isProblemListCollapsed;
+
+      // Calculate new sizes based on both states
+      const problemSize = newProblemCollapsed ? 0 : 20;
+      const chatSize = isChatCollapsed ? 0 : 20;
+      const remainingSpace = 100 - problemSize - chatSize;
+
+      // Distribute remaining space between description and code
+      const descSize = remainingSpace * 0.4; // 40% of remaining
+      const codeSize = remainingSpace * 0.6;  // 60% of remaining
+
+      splitRef.current.split.setSizes([problemSize, descSize, codeSize, chatSize]);
+      setIsProblemListCollapsed(newProblemCollapsed);
+    }
+  };
+
+  const toggleChat = () => {
+    if (splitRef.current) {
+      const newChatCollapsed = !isChatCollapsed;
+
+      // Calculate new sizes based on both states
+      const problemSize = isProblemListCollapsed ? 0 : 20;
+      const chatSize = newChatCollapsed ? 0 : 20;
+      const remainingSpace = 100 - problemSize - chatSize;
+
+      // Distribute remaining space between description and code
+      const descSize = remainingSpace * 0.4; // 40% of remaining
+      const codeSize = remainingSpace * 0.6;  // 60% of remaining
+
+      splitRef.current.split.setSizes([problemSize, descSize, codeSize, chatSize]);
+      setIsChatCollapsed(newChatCollapsed);
+    }
+  };
+
+  const fullFocusScreen = () => {
+    if (splitRef.current) {
+      if (isFullFocus) {
+        // Expand: restore original sizes
+        splitRef.current.split.setSizes([20, 25, 35, 20]);
+      } else {
+        // Collapse: set first panel to 0, redistribute space
+        splitRef.current.split.setSizes([0, 50, 50, 0]);
+      }
+      setIsFullFocus(!isFullFocus);
+    }
+  };
+
   const handleChat = async () => {
     if (!input.trim() || !selectedProblem) return;
 
@@ -44,7 +101,6 @@ export default function PracticePage() {
     try {
       const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-      // Combine problem context + user conversation
       const context = `
         You are an expert coding assistant.
         Provide clear, simple, and concise explanations or hints related to the coding problem below.
@@ -71,8 +127,6 @@ export default function PracticePage() {
         User Question(important): ${input}
         `;
 
-      console.log({ context });
-
       const result = await model.generateContent(context);
       const text = await result.response.text();
 
@@ -84,16 +138,15 @@ export default function PracticePage() {
         { role: "assistant", content: "⚠️ Error: Unable to fetch AI response." },
       ]);
     }
-  }
-  // ✅ check for pro status
+  };
+
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch("/api/getUser");
         const data = await res.json();
         setUser(data.user);
-      } catch {
-      }
+      } catch { }
     })();
   }, []);
 
@@ -126,7 +179,6 @@ export default function PracticePage() {
       setShowConfetti(false);
     }
   }, [selectedProblem, selectedLanguage]);
-
 
   const handleSubmit = async () => {
     if (!selectedProblem) return;
@@ -181,7 +233,6 @@ export default function PracticePage() {
       }
     }
 
-    // ✅ Store submission in Convex
     try {
       await createSubmission({
         userId: user._id,
@@ -317,202 +368,235 @@ export default function PracticePage() {
         </div>
       </div>
 
-      {/* Main Layout */}
-      <div className="flex flex-col md:flex-row min-h-screen bg-[#0a0a0f] text-white overflow-hidden md:overflow-auto">
-        {/* Left Panel (Visible only on Desktop) */}
-        <div className="hidden md:block w-[15%] bg-[#111] border-r border-gray-800 p-2 overflow-y-auto">
-          <h2 className="text-sm font-semibold mb-3 text-gray-300 text-center">
-            Problems
-          </h2>
-          {problems.map((p) => (
-            <div
-              key={p._id}
-              onClick={() => {
-                setSelectedProblem(p);
-                setDrawerOpen(false);
-              }}
-              className={`cursor-pointer p-2 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
-                ? "bg-blue-700"
-                : "bg-[#1a1a1a] hover:bg-[#222]"
-                }`}
-            >
-              {p?.problemId?.toUpperCase()}. {p.title}
-            </div>
-          ))}
-        </div>
+      {/* Main Layout - Desktop */}
+      <div className="hidden md:flex bg-[#0a0a0f] text-white h-[92vh] overflow-hidden relative">
+        {/* Toggle Button - Positioned absolutely */}
+        <button
+          onClick={toggleProblemList}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-50 bg-transparent hover:bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition-all duration-300"
 
-        {/* Problem Description */}
-        <div className="w-full md:w-[20%] p-4  border-b  md:border-b-0 md:border-r border-gray-800 flex-1 overflow-y-auto
-">
-          {selectedProblem ? (
-            <>
-              <h1 className="text-lg md:text-xl font-semibold mb-2">
-                {selectedProblem.title}
-              </h1>
-              <p className="text-gray-300 mb-4 text-sm md:text-base">
-                {selectedProblem.description}
-              </p>
-              <p className="text-gray-400 mb-2 text-sm">
-                <strong>Difficulty:</strong> {selectedProblem.difficulty}
-              </p>
+          title={isProblemListCollapsed ? "Show Problems" : "Hide Problems"}
+        >
+          {isProblemListCollapsed ? '›' : '‹'}
+        </button>
+        <button
+          onClick={toggleChat}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-50 hover:bg-blue-600 bg-transparent text-white rounded-full w-6 h-6 flex items-center justify-center shadow-lg transition-all duration-300"
 
-              {selectedProblem.testCases?.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="font-semibold mb-2 text-gray-300">
-                    Sample Test Cases
-                  </h3>
-                  {selectedProblem.testCases.map((tc, i) => (
-                    <div
-                      key={i}
-                      className="bg-gray-900 p-3 m-1 rounded-lg border border-gray-700"
-                    >
-                      <p className="text-gray-400 text-sm mb-1">
-                        <strong>Input:</strong> {tc.input}
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        <strong>Expected Output:</strong> {tc.expectedOutput}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
+          title={toggleChat ? "Show Chats" : "Hide Chats"}
+        >
+          {toggleChat ? '›' : '‹'}
+        </button>
+        <button
+          onClick={fullFocusScreen}
+          className="absolute left-0 top-1 -translate-y-1/2 z-50 hover:bg-blue-600 bg-transparent text-white rounded-sm m-1 p-1 w-6 h-6 flex items-center justify-center shadow-lg transition-all duration-300"
 
-              {testResults.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-semibold mb-3 text-gray-300">
-                    Test Case Results
-                  </h3>
-                  {testResults.map((res, i) => (
-                    <div
-                      key={i}
-                      className={`p-3 m-1 rounded-lg border ${res.passed
-                        ? "border-green-600 bg-green-900/20"
-                        : "border-red-600 bg-red-900/20"
-                        }`}
-                    >
-                      <p className="text-sm text-gray-300">
-                        <strong>Input:</strong> {res.input}
-                      </p>
-                      <p className="text-sm text-gray-300">
-                        <strong>Expected:</strong> {res.expected}
-                      </p>
-                      <p className="text-sm text-gray-300">
-                        <strong>Output:</strong>{" "}
-                        <span
-                          className={
-                            res.passed ? "text-green-400" : "text-red-400"
-                          }
-                        >
-                          {res.actual || "No Output"}
-                        </span>
-                      </p>
-                      {res.error && (
-                        <p className="text-red-400 text-xs mt-1">
-                          Error: {res.error}
+          title={isFullFocus ? "fullfocus" : "notfullfocus"}
+        >
+          {isFullFocus ? <Maximize /> : <Minimize />}
+        </button>
+
+        <Split
+          ref={splitRef}
+          className="flex w-full h-full"
+          sizes={[20, 25, 35, 20]} // percentage for [problems list, description, code, chat]
+          minSize={[0, 0, 0, 0]} // minimum px width - first is 0 to allow collapse
+          gutterSize={6}
+          gutterAlign="center"
+          snapOffset={0}
+          direction="horizontal"
+          cursor="col-resize"
+        >
+          {/* Panel 1: Problems List */}
+          <div className={`h-full p-4 border-r border-gray-800 overflow-y-auto bg-[#0a0a0f] transition-opacity duration-300 ${isProblemListCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}>
+            <h2 className="text-sm font-semibold mb-3 text-gray-300 text-center">
+              Problems
+            </h2>
+            {problems.map((p) => (
+              <div
+                key={p._id}
+                onClick={() => setSelectedProblem(p)}
+                className={`cursor-pointer p-2 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
+                  ? "bg-blue-700"
+                  : "bg-[#1a1a1a] hover:bg-[#222]"
+                  }`}
+              >
+                {p?.problemId?.toUpperCase()}. {p.title}
+              </div>
+            ))}
+          </div>
+
+          {/* Panel 2: Problem Description */}
+          <div className="h-full p-4 border-r border-gray-800 overflow-y-auto">
+            {selectedProblem ? (
+              <>
+                <h1 className="text-lg md:text-xl font-semibold mb-2">
+                  {selectedProblem.title}
+                </h1>
+                <p className="text-gray-300 mb-4 text-sm md:text-base">
+                  {selectedProblem.description}
+                </p>
+                <p className="text-gray-400 mb-2 text-sm">
+                  <strong>Difficulty:</strong> {selectedProblem.difficulty}
+                </p>
+
+                {selectedProblem.testCases?.length > 0 && (
+                  <div className="mt-4">
+                    <h3 className="font-semibold mb-2 text-gray-300">
+                      Sample Test Cases
+                    </h3>
+                    {selectedProblem.testCases.map((tc, i) => (
+                      <div
+                        key={i}
+                        className="bg-gray-900 p-3 m-1 rounded-lg border border-gray-700"
+                      >
+                        <p className="text-gray-400 text-sm mb-1">
+                          <strong>Input:</strong> {tc.input}
                         </p>
-                      )}
-                      <p
-                        className={`text-xs mt-2 font-semibold ${res.passed ? "text-green-400" : "text-red-400"
+                        <p className="text-gray-400 text-sm">
+                          <strong>Expected Output:</strong> {tc.expectedOutput}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {testResults.length > 0 && (
+                  <div className="mt-6">
+                    <h3 className="font-semibold mb-3 text-gray-300">
+                      Test Case Results
+                    </h3>
+                    {testResults.map((res, i) => (
+                      <div
+                        key={i}
+                        className={`p-3 m-1 rounded-lg border ${res.passed
+                          ? "border-green-600 bg-green-900/20"
+                          : "border-red-600 bg-red-900/20"
                           }`}
                       >
-                        {res.passed ? "✅ Passed" : "❌ Failed"}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <p className="text-gray-500 text-sm">
-              Select a problem to view details.
-            </p>
-          )}
-        </div>
-
-        {/* Code Area */}
-        <div className="w-full md:w-[40%] p-4 border-r md:border-b-0 md:border-r flex flex-col border-gray-800  h-[92vh]">
-          <div className="flex justify-between mb-2">
-            <select
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="bg-[#1a1a1a] border border-gray-700 rounded-md px-3 py-1 text-sm w-full md:w-auto"
-            >
-              <option value="cpp">C++</option>
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-              <option value="java">Java</option>
-            </select>
-          </div>
-
-          <div className="flex-1 min-h-[300px] md:min-h-0">
-            <CodeEditor code={code} setCode={setCode} language={selectedLanguage} />
-          </div>
-
-          <button
-            onClick={handleSubmit}
-            disabled={!selectedProblem || isSubmitting}
-            className={`mt-4 py-2 rounded-md font-medium transition text-sm md:text-base ${selectedProblem
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "bg-gray-700 cursor-not-allowed"
-              }`}
-          >
-            {isSubmitting ? "Running..." : "Submit Code"}
-          </button>
-        </div>
-
-        {/* AI Chat Area */}
-        <div className="w-full md:w-[25%] flex flex-col border-t md:border-t-0 md:border-l border-gray-800 bg-[#0c0c11] md:h-[90vh] h-[calc(100vh-64px)] max-h-[calc(100vh-64px)]">
-          {/* Header */}
-          <div className="p-3 md:p-4 border-b border-gray-800 shrink-0">
-            <h3 className="text-gray-200 font-semibold text-base">💬 Assistant</h3>
-          </div>
-
-          {/* Scrollable Messages */}
-          <div className="flex-1 overflow-y-auto px-3 md:px-4 py-2 md:py-3 text-sm bg-[#111] border-b border-gray-800">
-            {messages.length === 0 ? (
-              <p className="text-gray-500 text-center mt-12 text-sm">
-                Ask for hints, explanations, or guidance about this problem.
-              </p>
+                        <p className="text-sm text-gray-300">
+                          <strong>Input:</strong> {res.input}
+                        </p>
+                        <p className="text-sm text-gray-300">
+                          <strong>Expected:</strong> {res.expected}
+                        </p>
+                        <p className="text-sm text-gray-300">
+                          <strong>Output:</strong>{" "}
+                          <span
+                            className={
+                              res.passed ? "text-green-400" : "text-red-400"
+                            }
+                          >
+                            {res.actual || "No Output"}
+                          </span>
+                        </p>
+                        {res.error && (
+                          <p className="text-red-400 text-xs mt-1">
+                            Error: {res.error}
+                          </p>
+                        )}
+                        <p
+                          className={`text-xs mt-2 font-semibold ${res.passed ? "text-green-400" : "text-red-400"
+                            }`}
+                        >
+                          {res.passed ? "✅ Passed" : "❌ Failed"}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             ) : (
-              messages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`mb-3 whitespace-pre-wrap ${m.role === "user" ? "text-blue-400" : "text-gray-300"
-                    }`}
-                >
-                  <span className="font-bold text-green-700">
-                    {m.role === "user" ? "You: " : "AI: "}
-                  </span>
-                  {m.content}
-                </div>
-              ))
+              <p className="text-gray-500 text-sm">
+                Select a problem to view details.
+              </p>
             )}
           </div>
 
-          {/* Fixed Input Area */}
-          <div className="p-3 md:p-4 flex items-center gap-2 border-t border-gray-800 bg-[#0c0c11] shrink-0">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask something..."
-              className="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
-            />
+          {/* Panel 3: Code Editor */}
+          <div className="h-full p-4 border-r border-gray-800 flex flex-col bg-[#0a0a0f]">
+            <div className="flex justify-between mb-2">
+              <select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="bg-[#1a1a1a] border border-gray-700 rounded-md px-3 py-1 text-sm w-full md:w-auto"
+              >
+                <option value="cpp">C++</option>
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
+
+            <div className="flex-1 min-h-[300px] md:min-h-0">
+              <CodeEditor code={code} setCode={setCode} language={selectedLanguage} />
+            </div>
+
             <button
-              onClick={handleChat}
-              disabled={!input.trim()}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-sm px-3 md:px-4 py-2 rounded-lg transition-all"
+              onClick={handleSubmit}
+              disabled={!selectedProblem || isSubmitting}
+              className={`mt-4 py-2 rounded-md font-medium transition text-sm md:text-base ${selectedProblem
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-700 cursor-not-allowed"
+                }`}
             >
-              Send
+              {isSubmitting ? "Running..." : "Submit Code"}
             </button>
           </div>
-        </div>
 
+          {/* Panel 4: AI Chat */}
+          <div className="h-full flex flex-col bg-[#0c0c11]">
+            {/* Header */}
+            <div className="p-3 md:p-4 border-b border-gray-800 shrink-0">
+              <h3 className="text-gray-200 font-semibold text-base">💬 Assistant</h3>
+            </div>
 
+            {/* Scrollable Messages */}
+            <div className="flex-1 overflow-y-auto px-3 md:px-4 py-2 md:py-3 text-sm bg-[#111] border-b border-gray-800">
+              {messages.length === 0 ? (
+                <p className="text-gray-500 text-center mt-12 text-sm">
+                  Ask for hints, explanations, or guidance about this problem.
+                </p>
+              ) : (
+                messages.map((m, i) => (
+                  <div
+                    key={i}
+                    className={`mb-3 whitespace-pre-wrap ${m.role === "user" ? "text-blue-400" : "text-gray-300"
+                      }`}
+                  >
+                    <span className="font-bold text-green-700">
+                      {m.role === "user" ? "You: " : "AI: "}
+                    </span>
+                    {m.content}
+                  </div>
+                ))
+              )}
+            </div>
 
-
-
+            {/* Fixed Input Area */}
+            <div className="p-3 md:p-4 flex items-center gap-2 border-t border-gray-800 bg-[#0c0c11] shrink-0">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleChat()}
+                placeholder="Ask something..."
+                className="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-600"
+              />
+              <button
+                onClick={handleChat}
+                disabled={!input.trim()}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white text-sm px-3 md:px-4 py-2 rounded-lg transition-all"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </Split>
       </div>
+
+
     </>
-  );
+  )
 }

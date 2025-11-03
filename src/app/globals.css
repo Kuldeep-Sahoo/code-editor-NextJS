@@ -14,3 +14,23 @@
 .cl-internal-l2l775 {
   display: none !important;
 }
+
+/* Style the gutters (dividers) between split panels */
+.gutter {
+  background-color: gray; /* Dark blue-gray - customize this */
+  background-repeat: no-repeat;
+  background-position: 50%;
+}
+
+/* Horizontal gutter styling */
+.gutter.gutter-horizontal {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==");
+  cursor: col-resize;
+  width: 5px !important;
+  border-radius: 10px;
+}
+
+/* Optional: Add hover effect */
+.gutter.gutter-horizontal:hover {
+  background-color: #334155; /* Lighter shade on hover */
+}
