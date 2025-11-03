@@ -17,7 +17,7 @@
 
 /* Style the gutters (dividers) between split panels */
 .gutter {
-  background-color: gray; /* Dark blue-gray - customize this */
+  background-color: transparent; /* Dark blue-gray - customize this */
   background-repeat: no-repeat;
   background-position: 50%;
 }

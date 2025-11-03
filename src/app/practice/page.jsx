@@ -612,7 +612,7 @@ export default function PracticePage() {
         >
           {/* Panel 1: Problems List */}
           <div
-            className={`h-full p-4 border-r border-gray-800 overflow-y-auto bg-[#0a0a0f] transition-opacity duration-300 ${isProblemListCollapsed
+            className={`h-full p-4  border-gray-800 overflow-y-auto bg-[#0a0a0f] transition-opacity duration-300 ${isProblemListCollapsed
                 ? "opacity-0 pointer-events-none"
                 : "opacity-100"
               }`}
@@ -635,7 +635,7 @@ export default function PracticePage() {
           </div>
 
           {/* Panel 2: Problem Description */}
-          <div className="h-full p-4 border-r border-gray-800 overflow-y-auto">
+          <div className="h-full p-4  border-gray-800 overflow-y-auto">
             {selectedProblem ? (
               <>
                 <h1 className="text-lg md:text-xl font-semibold mb-2">
@@ -722,7 +722,7 @@ export default function PracticePage() {
           </div>
 
           {/* Panel 3: Code Editor */}
-          <div className="h-full p-4 border-r border-gray-800 flex flex-col bg-[#0a0a0f]">
+          <div className="h-full p-4  border-gray-800 flex flex-col bg-[#0a0a0f]">
             <div className="flex justify-between mb-2">
               <select
                 value={selectedLanguage}
