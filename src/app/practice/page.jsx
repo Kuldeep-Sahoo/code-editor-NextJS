@@ -76,13 +76,18 @@ export default function PracticePage() {
   const fullFocusScreen = () => {
     if (splitRef.current) {
       if (isFullFocus) {
+        // Exit full screen and reset layout
+        document.exitFullscreen?.();
         splitRef.current.split.setSizes([20, 25, 35, 20]);
       } else {
+        // Enter full screen and expand layout
+        document.documentElement.requestFullscreen?.();
         splitRef.current.split.setSizes([0, 50, 50, 0]);
       }
       setIsFullFocus(!isFullFocus);
     }
   };
+
 
   const handleChat = async () => {
     if (!input.trim() || !selectedProblem) return;
@@ -330,8 +335,8 @@ export default function PracticePage() {
           <button
             onClick={() => setMobileActiveTab("description")}
             className={`flex-1 py-3 text-sm font-medium ${mobileActiveTab === "description"
-                ? "text-blue-400 border-b-2 border-blue-400"
-                : "text-gray-400"
+              ? "text-blue-400 border-b-2 border-blue-400"
+              : "text-gray-400"
               }`}
           >
             Problem
@@ -339,8 +344,8 @@ export default function PracticePage() {
           <button
             onClick={() => setMobileActiveTab("code")}
             className={`flex-1 py-3 text-sm font-medium ${mobileActiveTab === "code"
-                ? "text-blue-400 border-b-2 border-blue-400"
-                : "text-gray-400"
+              ? "text-blue-400 border-b-2 border-blue-400"
+              : "text-gray-400"
               }`}
           >
             Code
@@ -348,8 +353,8 @@ export default function PracticePage() {
           <button
             onClick={() => setMobileActiveTab("chat")}
             className={`flex-1 py-3 text-sm font-medium ${mobileActiveTab === "chat"
-                ? "text-blue-400 border-b-2 border-blue-400"
-                : "text-gray-400"
+              ? "text-blue-400 border-b-2 border-blue-400"
+              : "text-gray-400"
               }`}
           >
             AI Chat
@@ -403,8 +408,8 @@ export default function PracticePage() {
                         <div
                           key={i}
                           className={`p-3 mb-2 rounded-lg border ${res.passed
-                              ? "border-green-600 bg-green-900/20"
-                              : "border-red-600 bg-red-900/20"
+                            ? "border-green-600 bg-green-900/20"
+                            : "border-red-600 bg-red-900/20"
                             }`}
                         >
                           <p className="text-sm text-gray-300">
@@ -475,8 +480,8 @@ export default function PracticePage() {
                 onClick={handleSubmit}
                 disabled={!selectedProblem || isSubmitting}
                 className={`py-3 rounded-md font-medium transition text-sm shrink-0 ${selectedProblem
-                    ? "bg-blue-600 hover:bg-blue-700"
-                    : "bg-gray-700 cursor-not-allowed"
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-700 cursor-not-allowed"
                   }`}
               >
                 {isSubmitting ? "Running..." : "Submit Code"}
@@ -561,8 +566,8 @@ export default function PracticePage() {
                       setDrawerOpen(false);
                     }}
                     className={`cursor-pointer p-3 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
-                        ? "bg-blue-700"
-                        : "bg-[#1a1a1a] hover:bg-[#222]"
+                      ? "bg-blue-700"
+                      : "bg-[#1a1a1a] hover:bg-[#222]"
                       }`}
                   >
                     {p?.problemId?.toUpperCase()}. {p.title}
@@ -613,8 +618,8 @@ export default function PracticePage() {
           {/* Panel 1: Problems List */}
           <div
             className={`h-full p-4  border-gray-800 overflow-y-auto bg-[#0a0a0f] transition-opacity duration-300 ${isProblemListCollapsed
-                ? "opacity-0 pointer-events-none"
-                : "opacity-100"
+              ? "opacity-0 pointer-events-none"
+              : "opacity-100"
               }`}
           >
             <h2 className="text-sm font-semibold mb-3 text-gray-300 text-center">
@@ -625,8 +630,8 @@ export default function PracticePage() {
                 key={p._id}
                 onClick={() => setSelectedProblem(p)}
                 className={`cursor-pointer p-2 rounded-md mb-2 text-sm ${selectedProblem?._id === p._id
-                    ? "bg-blue-700"
-                    : "bg-[#1a1a1a] hover:bg-[#222]"
+                  ? "bg-blue-700"
+                  : "bg-[#1a1a1a] hover:bg-[#222]"
                   }`}
               >
                 {p?.problemId?.toUpperCase()}. {p.title}
@@ -678,8 +683,8 @@ export default function PracticePage() {
                       <div
                         key={i}
                         className={`p-3 m-1 rounded-lg border ${res.passed
-                            ? "border-green-600 bg-green-900/20"
-                            : "border-red-600 bg-red-900/20"
+                          ? "border-green-600 bg-green-900/20"
+                          : "border-red-600 bg-red-900/20"
                           }`}
                       >
                         <p className="text-sm text-gray-300">
@@ -748,8 +753,8 @@ export default function PracticePage() {
               onClick={handleSubmit}
               disabled={!selectedProblem || isSubmitting}
               className={`mt-4 py-2 rounded-md font-medium transition text-sm md:text-base ${selectedProblem
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-700 cursor-not-allowed"
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-700 cursor-not-allowed"
                 }`}
             >
               {isSubmitting ? "Running..." : "Submit Code"}
