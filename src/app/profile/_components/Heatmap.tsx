@@ -41,7 +41,6 @@ const getColor = (success: number, error: number) => {
   return "bg-gray-800"; // Default fallback
 };
 
-
 const generateCalendar = (data: DayData[]) => {
   const fullYear: {
     [month: number]: {
@@ -74,7 +73,6 @@ const generateCalendar = (data: DayData[]) => {
   return fullYear;
 };
 
-
 const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
   const calendar = generateCalendar(data);
   const [tooltip, setTooltip] = useState<{
@@ -86,8 +84,8 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
   } | null>(null);
 
   return (
-    <div className="relative overflow-x-auto md:p-4 bg-gray-900 rounded-xl w-full mt-2">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+    <div className="relative overflow-x-auto md:p-2 bg-gray-900 rounded-3xl w-full mt-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-4">
         {Object.entries(calendar).map(([month, weeks], monthIndex) => (
           <div key={monthIndex} className="flex flex-col items-center">
             {/* Month Label */}
@@ -104,7 +102,7 @@ const Heatmap: React.FC<HeatmapProps> = ({ data }) => {
                   return (
                     <motion.div
                       key={`${month}-${week}-${day}`}
-                      className={`h-4 w-4 md:w-5 md:h-5 ${getColor(success, error)} rounded-sm cursor-pointer relative`}
+                      className={`h-4 w-4 md:w-2.5 md:h-2.5 ${getColor(success, error)} rounded-sm cursor-pointer relative`}
                       onMouseEnter={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect();
                         const tooltipWidth = 80; // Estimated width

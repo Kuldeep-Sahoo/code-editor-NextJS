@@ -121,7 +121,7 @@ const Page = () => {
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       <NavigationHeader />
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-[95%]  mx-auto px-4 py-2">
         {userStats && userData && (
           <ProfileHeader
             userStats={userStats}
@@ -182,9 +182,9 @@ const Page = () => {
               className="p-2"
             >
               {activeTab === "ProblemSubmissions" && (
-                <div className="space-y-6">
+                <div className="space-y-2">
                   {!submissions ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-2">
                       <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
                       <h3 className="text-lg font-medium text-gray-400 mb-2">
                         Loading submissions...
@@ -270,7 +270,7 @@ const Page = () => {
                       </table>
                     </div>
                   ) : (
-                    <div className="text-center py-12">
+                    <div className="text-center py-2">
                       <Code className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                       <h3 className="text-lg font-medium text-gray-400 mb-2">
                         No submissions yet
@@ -355,7 +355,7 @@ const Page = () => {
                   ))}
 
                   {isLoadingExecutions ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-2">
                       <Loader2 className="w-12 h-12 text-gray-600 mx-auto mb-4 animate-spin" />
                       <h3 className="text-lg font-medium text-gray-400 mb-2">
                         Loading code executions...
@@ -363,7 +363,7 @@ const Page = () => {
                     </div>
                   ) : (
                     executions.length === 0 && (
-                      <div className="text-center py-12">
+                      <div className="text-center py-2">
                         <Code className="w-12 h-12 text-gray-600 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-400 mb-2">
                           No code executions yet

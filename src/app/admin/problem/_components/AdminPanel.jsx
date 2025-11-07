@@ -270,7 +270,7 @@ const AdminPanel = () => {
                                         <div>
 
                                             <h3 className="font-semibold text-base md:text-lg">
-                                                {p.title}
+                                                {p.problemId.toString().toUpperCase()}. {p.title}
                                             </h3>
                                             <p className="text-sm text-gray-400 capitalize">
                                                 {p.difficulty || "N/A"}

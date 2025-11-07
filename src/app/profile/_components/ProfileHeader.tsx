@@ -51,49 +51,49 @@ function ProfileHeader({
   user,
   submissions,
 }: ProfileHeaderProps) {
-const [submissionsHistory, setSubmissionsHistory] = useState<
-  { date: string; success: number; error: number }[]
->([]);
+  const [submissionsHistory, setSubmissionsHistory] = useState<
+    { date: string; success: number; error: number }[]
+  >([]);
 
-useEffect(() => {
-  if (!submissions || submissions.length === 0) return;
+  useEffect(() => {
+    if (!submissions || submissions.length === 0) return;
 
-  const history = submissions.reduce(
-    (
-      acc: { date: string; success: number; error: number }[],
-      s: {
-        submittedAt: number;
-        status?: string;
-      }
-    ) => {
-      const dateObj = new Date(s.submittedAt);
-      const date = `${dateObj.getFullYear()}-${String(
-        dateObj.getMonth() + 1
-      ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+    const history = submissions.reduce(
+      (
+        acc: { date: string; success: number; error: number }[],
+        s: {
+          submittedAt: number;
+          status?: string;
+        }
+      ) => {
+        const dateObj = new Date(s.submittedAt);
+        const date = `${dateObj.getFullYear()}-${String(
+          dateObj.getMonth() + 1
+        ).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
 
-      const existing = acc.find((x) => x.date === date);
-      const isSuccess =
-        s.status?.toLowerCase() === "accepted" ||
-        s.status?.toLowerCase() === "success";
+        const existing = acc.find((x) => x.date === date);
+        const isSuccess =
+          s.status?.toLowerCase() === "accepted" ||
+          s.status?.toLowerCase() === "success";
 
-      if (existing) {
-        if (isSuccess) existing.success += 1;
-        else existing.error += 1;
-      } else {
-        acc.push({
-          date,
-          success: isSuccess ? 1 : 0,
-          error: isSuccess ? 0 : 1,
-        });
-      }
+        if (existing) {
+          if (isSuccess) existing.success += 1;
+          else existing.error += 1;
+        } else {
+          acc.push({
+            date,
+            success: isSuccess ? 1 : 0,
+            error: isSuccess ? 0 : 1,
+          });
+        }
 
-      return acc;
-    },
-    []
-  );
+        return acc;
+      },
+      []
+    );
 
-  setSubmissionsHistory(history);
-}, [submissions]);
+    setSubmissionsHistory(history);
+  }, [submissions]);
 
   const starredSnippets = useQuery(api.snippets.getStarredSnippets);
   const STATS = [
@@ -160,28 +160,38 @@ useEffect(() => {
       className="relative m-2 bg-gradient-to-br from-[#12121a] to-[#1a1a2e] rounded-2xl p-2 border
      border-gray-800/50 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:32px]" />
-      <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 w-full mb-2">
+      <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:32px] " />
+      <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 w-full m-4">
         {/* Profile Image */}
         <div className="relative group shrink-0">
+          {/* Neon Green-Pink Gradient Glow */}
           <div
-            className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 
-      rounded-full blur-xl opacity-40 group-hover:opacity-70 transition-opacity"
+            className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-green-500 to-pink-500 
+      rounded-full blur-xl opacity-50 group-hover:opacity-80 transition-all duration-500"
           />
+
+          {/* Animated Border Ring */}
+          <div
+            className="absolute -inset-1 bg-gradient-to-r from-green-400 via-emerald-500 to-pink-500 
+      rounded-full opacity-75 group-hover:opacity-100 blur-sm animate-pulse"
+          />
+
           <Image
             src={user.imageUrl}
             alt="Profile"
             width={96}
             height={96}
-            className="rounded-full border-4 border-gray-800/60 relative z-10 
-      group-hover:scale-105 transition-transform duration-300"
+            className="rounded-full border-4 border-gray-900/80 relative z-10 
+      group-hover:scale-105 transition-transform duration-300 shadow-2xl"
           />
+
+          {/* Pro Badge with Green-Pink Gradient */}
           {userData.isPro && (
             <div
-              className="absolute -top-2 -right-2 bg-gradient-to-r from-purple-500 to-purple-600 
-        p-2 rounded-full z-20 shadow-md animate-pulse"
+              className="absolute -top-2 -right-2 bg-gradient-to-br from-green-400 via-emerald-500 to-pink-500 
+        p-2 rounded-full z-20 shadow-lg shadow-pink-500/50 animate-pulse"
             >
-              <Zap className="w-4 h-4 text-white" />
+              <Zap className="w-4 h-4 text-white" fill="white" />
             </div>
           )}
         </div>
@@ -189,41 +199,107 @@ useEffect(() => {
         {/* Profile Info */}
         <div className="text-center sm:text-left">
           <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3 mb-2">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">
+            {/* Name with Gradient Text */}
+            <h1
+              className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-400 via-emerald-300 
+        to-pink-400 bg-clip-text text-transparent break-words"
+            >
               {userData.name}
             </h1>
 
+            {/* Pro Member Badge */}
             {userData?.isPro && (
               <>
-                <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm font-medium">
-                  Pro Member
+                <span className="relative px-4 py-1.5 rounded-full text-sm font-semibold overflow-hidden">
+                  {/* Gradient Background */}
+                  <span
+                    className="absolute inset-0 bg-gradient-to-r from-green-500/20 via-emerald-500/20 
+              to-pink-500/20 backdrop-blur-sm"
+                  />
+                  {/* Border */}
+                  <span className="absolute inset-0 rounded-full border border-green-400/50" />
+                  {/* Text */}
+                  <span
+                    className="relative bg-gradient-to-r from-green-400 to-pink-400 bg-clip-text 
+              text-transparent"
+                  >
+                    Pro Member
+                  </span>
                 </span>
+
                 <button
                   onClick={updateUserData}
-                  className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full 
-            text-sm font-medium hover:bg-purple-500/20 transition-colors"
+                  className="group relative px-4 py-1.5 rounded-full text-sm font-medium 
+            overflow-hidden transition-all duration-300 hover:scale-105"
                 >
-                  Toggle Pro
+                  {/* Animated Background */}
+                  <span
+                    className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-pink-500/10 
+              group-hover:from-green-500/20 group-hover:to-pink-500/20 transition-all duration-300"
+                  />
+                  {/* Border */}
+                  <span
+                    className="absolute inset-0 rounded-full border border-green-400/30 
+              group-hover:border-pink-400/50 transition-colors duration-300"
+                  />
+                  {/* Text */}
+                  <span
+                    className="relative text-green-400 group-hover:text-pink-400 transition-colors 
+              duration-300"
+                  >
+                    Toggle Pro
+                  </span>
                 </button>
               </>
             )}
 
+            {/* Upgrade to Pro Button */}
             {user && !userData?.isPro && (
               <Link
                 href="/pricing"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 
-          hover:border-amber-500/50 bg-gradient-to-r from-amber-500/10 to-orange-500/10 
-          hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300 text-sm"
+                className="group relative flex items-center gap-2 px-4 py-2 rounded-xl 
+          overflow-hidden transition-all duration-300 hover:scale-105"
               >
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="text-amber-400 font-medium">Pro</span>
+                {/* Animated Gradient Background */}
+                <span
+                  className="absolute inset-0 bg-gradient-to-r from-green-500 via-emerald-500 
+            to-pink-500 opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+
+                {/* Glow Effect */}
+                <span
+                  className="absolute inset-0 bg-gradient-to-r from-green-400 to-pink-400 
+            blur-lg opacity-50 group-hover:opacity-75 transition-opacity"
+                />
+
+                {/* Shine Effect */}
+                <span
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 
+            to-transparent -translate-x-full group-hover:translate-x-full transition-transform 
+            duration-1000"
+                />
+
+                {/* Content */}
+                <Sparkles
+                  className="w-4 h-4 text-white relative z-10 group-hover:rotate-12 
+            transition-transform"
+                />
+                <span className="text-white font-semibold relative z-10">
+                  Upgrade to Pro
+                </span>
               </Link>
             )}
           </div>
 
-          <p className="text-gray-400 flex justify-center sm:justify-start items-center gap-2 text-sm sm:text-base">
-            <UserIcon className="w-4 h-4" />
-            {userData.email}
+          {/* Email with Modern Styling */}
+          <p className="flex justify-center sm:justify-start items-center gap-2 text-sm sm:text-base">
+            <span
+              className="p-1.5 rounded-lg bg-gradient-to-r from-green-500/10 to-pink-500/10 
+        border border-green-400/20"
+            >
+              <UserIcon className="w-4 h-4 text-green-400" />
+            </span>
+            <span className="text-gray-300">{userData.email}</span>
           </p>
         </div>
       </div>
