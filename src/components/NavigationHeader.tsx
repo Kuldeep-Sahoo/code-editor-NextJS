@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import HeaderProfileBtn from "@/app/(root)/_components/HeaderProfileBtn";
 import { SignedOut } from "@clerk/nextjs";
 import { Code2, CodeXmlIcon, LucideFormInput, Sparkles } from "lucide-react";
@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 const NavigationHeader = () => {
-  const [role, setRole] = useState();
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -21,7 +21,22 @@ const NavigationHeader = () => {
   }, []);
 
   const router = useRouter();
-  const handleNavigate = (path:string) => router.push(path);
+  const pathname = usePathname(); // <-- current path
+
+  const handleNavigate = (path: string) => router.push(path);
+
+  // Utility to apply active style
+  const getLinkClasses = (path: string) => {
+    const baseClasses =
+      "group flex items-center gap-1 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md text-gray-300 border border-gray-800 transition-all duration-300";
+    const hoverBg = "hover:bg-blue-500/10 hover:border-blue-500/50";
+
+    const activeBg = "bg-blue-500/20 border-red-500/60 text-white";
+
+    return pathname === path
+      ? `${baseClasses} ${activeBg}`
+      : `${baseClasses} bg-gray-800/50 ${hoverBg}`;
+  };
 
   return (
     <div className="sticky top-0 z-50 w-full border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-sm backdrop-saturate-150">
@@ -33,11 +48,7 @@ const NavigationHeader = () => {
             onClick={() => handleNavigate("/")}
             className="flex items-center gap-1.5 sm:gap-3 group relative cursor-pointer"
           >
-            <div
-              className="relative bg-gradient-to-br from-[#1a1a2e] to-[#0a0a0f] 
-              p-1 sm:p-2 rounded-lg sm:rounded-xl ring-1 ring-white/10 
-              group-hover:ring-white/20 transition-all"
-            >
+            <div className="relative bg-gradient-to-br from-[#1a1a2e] to-[#0a0a0f] p-1 sm:p-2 rounded-lg sm:rounded-xl ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
               <CodeXmlIcon className="w-4 h-4 sm:w-5 sm:h-5 text-green-400 transform -rotate-6 group-hover:rotate-0 transition-transform duration-500" />
             </div>
             <div className="flex flex-col leading-tight">
@@ -52,24 +63,14 @@ const NavigationHeader = () => {
 
           {/* Center Links */}
           <div className="flex items-center gap-1 sm:gap-3">
-            <Link
-              href="/snippets"
-              className="group flex items-center gap-1 px-1.5 sm:px-3 py-0.5 sm:py-1 
-              rounded-md text-gray-300 bg-gray-800/50 hover:bg-blue-500/10 
-              border border-gray-800 hover:border-blue-500/50 transition-all duration-300"
-            >
+            <Link href="/snippets" className={getLinkClasses("/snippets")}>
               <Code2 className="w-3 h-3 sm:w-4 sm:h-4 group-hover:rotate-3 transition-transform" />
               <span className="text-[11px] sm:text-sm font-medium group-hover:text-white">
                 Snippets
               </span>
             </Link>
 
-            <Link
-              href="/practice"
-              className="group flex items-center gap-1 px-1.5 sm:px-3 py-0.5 sm:py-1 
-              rounded-md text-gray-300 bg-gray-800/50 hover:bg-blue-500/10 
-              border border-gray-800 hover:border-blue-500/50 transition-all duration-300"
-            >
+            <Link href="/practice" className={getLinkClasses("/practice")}>
               <Code2 className="w-3 h-3 sm:w-4 sm:h-4 group-hover:rotate-3 transition-transform" />
               <span className="text-[11px] sm:text-sm font-medium group-hover:text-white">
                 Practice
@@ -79,11 +80,8 @@ const NavigationHeader = () => {
             {role === "admin" ? (
               <Link
                 href="/admin"
-                className="relative group flex items-center gap-1 px-1.5 sm:px-3 py-0.5 
-                rounded-md text-gray-300 bg-gray-800/50 hover:bg-blue-500/10 
-                border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-lg"
+                className={getLinkClasses("/admin") + " shadow-lg"}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <LucideFormInput className="w-3 h-3 sm:w-4 sm:h-4 relative z-10 group-hover:rotate-3 transition-transform" />
                 <span className="text-[11px] sm:text-sm font-medium relative z-10 group-hover:text-white transition-colors">
                   Admin
@@ -92,17 +90,13 @@ const NavigationHeader = () => {
             ) : (
               <Link
                 href="/profile"
-                className="relative group flex items-center gap-1 px-1.5 sm:px-3 py-0.5 
-                rounded-md text-gray-300 bg-gray-800/50 hover:bg-blue-500/10 
-                border border-gray-800 hover:border-blue-500/50 transition-all duration-300 shadow-lg"
+                className={getLinkClasses("/profile") + " shadow-lg"}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <LucideFormInput className="w-3 h-3 sm:w-4 sm:h-4 relative z-10 group-hover:rotate-3 transition-transform" />
                 <span className="text-[11px] sm:text-sm font-medium relative z-10 group-hover:text-white transition-colors">
                   Profile
                 </span>
               </Link>
-                
             )}
           </div>
 
@@ -111,11 +105,7 @@ const NavigationHeader = () => {
             <SignedOut>
               <button
                 onClick={() => handleNavigate("/pricing")}
-                className="flex items-center gap-1 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md 
-                border border-amber-500/20 hover:border-amber-500/40 
-                bg-gradient-to-r from-amber-500/10 to-orange-500/10 
-                hover:from-amber-500/20 hover:to-orange-500/20 
-                transition-all duration-300"
+                className="flex items-center gap-1 px-1.5 sm:px-3 py-0.5 sm:py-1 rounded-md border border-amber-500/20 hover:border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-orange-500/10 hover:from-amber-500/20 hover:to-orange-500/20 transition-all duration-300"
               >
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-amber-400" />
                 <span className="text-[11px] sm:text-sm font-medium text-amber-400/90">
