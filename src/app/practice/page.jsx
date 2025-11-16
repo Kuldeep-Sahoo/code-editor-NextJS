@@ -100,9 +100,10 @@ export default function PracticePage() {
     setIsThinking(true);
 
     try {
-      const model = ai.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+      const model = ai.getGenerativeModel({ model: "gemini-2.5-flash" });
 
       const context = `
+        The user is now messaging name is ${user.name}
         You are an expert coding assistant.
         Provide clear, simple, and concise explanations or hints related to the coding problem below.
         Avoid full solutions unless the user clearly asks for them.
@@ -127,6 +128,7 @@ export default function PracticePage() {
         The above is the context for you the important is user Question which is below this
         User Question(important): ${input}
       `;
+      console.log({context});
 
       const result = await model.generateContent(context);
       const text = await result.response.text();
@@ -738,7 +740,7 @@ export default function PracticePage() {
                                 : "text-gray-300 group-hover:text-white"
                               }`}
                             >
-                              {p.title.toString().concat(5,"...")}
+                              {p.title.toString().concat(5, "...")}
                             </span>
                           </div>
                         </div>
@@ -1081,8 +1083,8 @@ export default function PracticePage() {
                         {/* Message bubble */}
                         <div
                           className={`relative rounded-2xl p-3 ${m.role === "user"
-                              ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 ml-auto"
-                              : "bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20"
+                            ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 ml-auto"
+                            : "bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20"
                             }`}
                         >
                           {/* Glow effect */}
