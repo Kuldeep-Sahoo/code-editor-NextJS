@@ -1,6 +1,6 @@
 # 🚀 EditorForU - Online Code Editor & DSA Practice Platform
 
-![Code Editor Banner](https://ibb.co/x83JrRz8)
+![Code Editor Banner](https://res.cloudinary.com/dw9lfvpnl/image/upload/v1763357758/Screenshot_2025-11-16_212310_njw3q4.png)
 
 **Write, Execute, and Master Code in 6+ Programming Languages**
 A powerful online code editor designed for developers, students, and coding enthusiasts to practice, learn, and share code seamlessly [web:11][web:13].
