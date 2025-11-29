@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes"; // ✅ Import dark theme properly
+import { dark } from "@clerk/themes";
 import ConvexClientProvider from "@/components/provider/ConvexClientProvider";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
@@ -30,15 +30,77 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        {/* Botpress Webchat Script */}
+        <script
+          src="https://cdn.botpress.cloud/webchat/v3.3/inject.js"
+          defer
+        ></script>
+
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener("load", () => {
+                window.botpress.init({
+                  botId: "e73a6a8a-8397-47b4-a2c2-25149a3d1143",
+                  clientId: "3bca6cc1-66b4-4e1b-8ef4-ae755c939c7c",
+                  selector: "body",
+                  themeMode: "dark",
+                  theme: "solid",
+                  themeConfig: {
+                    primaryColor: "#8b5cf6",
+                    backgroundColor: "#0a0a0f",
+                    textColor: "#ffffff",
+                    botMessageBackground: "#1a1a1f",
+                    userMessageBackground: "#8b5cf6",
+                    buttonColor: "#8b5cf6",
+                    buttonTextColor: "#ffffff"
+                  }
+                });
+
+                window.botpress.on('webchat:initialized', () => {
+                  window.botpress.config({ 
+                    configuration: { themeMode: "dark" } 
+                  });
+                });
+              });
+            `,
+          }}
+        />
+
+        {/* Custom Botpress Button Size */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              #bp-web-widget-container .bpw-floating-button {
+                width: 50px !important;
+                height: 50px !important;
+                border-radius: 50% !important;
+              }
+              
+              #bp-web-widget-container .bpw-floating-button svg {
+                width: 24px !important;
+                height: 24px !important;
+              }
+              
+              #bp-web-widget-container {
+                bottom: 20px !important;
+                right: 20px !important;
+              }
+            `,
+          }}
+        />
+      </head>
+
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen 
         bg-gradient-to-b from-gray-900 to-gray-950 text-gray-100 flex flex-col`}
       >
         <ClerkProvider
           appearance={{
-            baseTheme: dark, // ✅ proper dark mode
+            baseTheme: dark,
             variables: {
-              colorPrimary: "#8b5cf6", // purple accent
+              colorPrimary: "#8b5cf6",
               colorBackground: "#0a0a0f",
               colorText: "#f5f5f5",
               colorInputBackground: "#111122",

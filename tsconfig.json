@@ -27,7 +27,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "**/*.css"
-, "src/app/practice/page.jsx", "src/components/NavigationHeader.tsx"  ],
+    "**/*.css",
+    "src/app/practice/page.jsx",
+    "src/components/NavigationHeader.tsx"
+  ],
   "exclude": ["node_modules"]
 }
