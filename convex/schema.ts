@@ -25,7 +25,14 @@ export default defineSchema({
       )
     ),
   }).index("by_user_id", ["userId"]), // Index the table by userId for quick lookup
-
+  onlineUsers: defineTable({
+    userId: v.string(),
+    name: v.string(), // <-- NEW
+    email: v.string(), // <-- NEW
+    lastSeen: v.number(), // timestamp in ms
+  })
+    .index("by_userId", ["userId"])
+    .index("by_lastSeen", ["lastSeen"]),
   // Define the 'codeExecutions' table to store code execution details
   codeExecutions: defineTable({
     userId: v.string(), // ID of the user who executed the code

@@ -6,6 +6,7 @@ import { dark } from "@clerk/themes";
 import ConvexClientProvider from "@/components/provider/ConvexClientProvider";
 import Footer from "@/components/Footer";
 import { Toaster } from "react-hot-toast";
+import OnlineTracker from "@/components/OnlineTracker";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -123,10 +124,13 @@ export default function RootLayout({
             },
           }}
         >
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <ConvexClientProvider>
+            <OnlineTracker />
+            {children}
+            <Footer />
+          </ConvexClientProvider>
         </ClerkProvider>
 
-        <Footer />
         <Toaster />
       </body>
     </html>

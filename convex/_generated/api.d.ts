@@ -15,6 +15,7 @@ import type {
 } from "convex/server";
 import type * as codeExecutions from "../codeExecutions.js";
 import type * as http from "../http.js";
+import type * as onlineUsers from "../onlineUsers.js";
 import type * as problems from "../problems.js";
 import type * as problemsubmissions from "../problemsubmissions.js";
 import type * as snippets from "../snippets.js";
@@ -31,6 +32,7 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   codeExecutions: typeof codeExecutions;
   http: typeof http;
+  onlineUsers: typeof onlineUsers;
   problems: typeof problems;
   problemsubmissions: typeof problemsubmissions;
   snippets: typeof snippets;

@@ -30,6 +30,6 @@
     "**/*.css",
     "src/app/practice/page.jsx",
     "src/components/NavigationHeader.tsx"
-  ],
+, "src/components/OnlineTracker.tsx"  ],
   "exclude": ["node_modules"]
 }
