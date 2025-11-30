@@ -28,6 +28,21 @@ export const goOnline = mutation({
   },
 });
 
+export const getActiveUserCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const activeThreshold = now - 15000; // 15 sec
+
+    const activeUsers = await ctx.db
+      .query("onlineUsers")
+      .withIndex("by_lastSeen")
+      .filter((q) => q.gte(q.field("lastSeen"), activeThreshold))
+      .collect();
+
+    return { count: activeUsers.length };
+  },
+});
 
 export const getActiveUsers = query({
   args: {},

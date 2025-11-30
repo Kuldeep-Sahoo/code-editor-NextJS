@@ -7,7 +7,7 @@ import { useQuery } from "convex/react";
 
 function Footer() {
   // Live active users from Convex
-  const activeUsers = useQuery(api.onlineUsers.getActiveUsers) || [];
+  const activeCount = useQuery(api.onlineUsers.getActiveUserCount);
 
   return (
     <footer className="relative mt-auto">
@@ -21,12 +21,7 @@ function Footer() {
 
           {/* Live Online Count */}
           <div className="text-green-400 font-semibold">
-            Active Users: {activeUsers.length}
-            {activeUsers?.map((u) => (
-              <div key={u._id}>
-                • {u.name}• {u.email}
-              </div>
-            ))}
+            {activeCount ? <p>Active users: {activeCount.count}</p> : <p>Loading...</p>}
           </div>
 
           <div className="flex items-center gap-6">

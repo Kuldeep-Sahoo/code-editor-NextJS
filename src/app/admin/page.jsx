@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Code2, Users, Sparkles, ProjectorIcon } from "lucide-react";
+import { Code2, Users, Sparkles, ProjectorIcon, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import NavigationHeader from "@/components/NavigationHeader";
 import Loader from "@/components/CubeLoader";
@@ -36,6 +36,14 @@ const cards = [
         desc: "Manage the problem submissions Data",
         icon: <ProjectorIcon className="w-8 h-8 text-purple-400" />,
         href: "/admin/submissions",
+        color:
+            "from-blue-500/20 to-purple-800/30 hover:from-purple-500/40 hover:to-purple-800/50",
+    },
+    {
+        title: "Active Online Users",
+        desc: "See all active users now present in your website",
+        icon: <Users className="w-8 h-8 text-purple-400" />,
+        href: "/admin/online-users",
         color:
             "from-blue-500/20 to-purple-800/30 hover:from-purple-500/40 hover:to-purple-800/50",
     },
