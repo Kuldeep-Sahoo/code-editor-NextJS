@@ -29,6 +29,7 @@ export default defineSchema({
     userId: v.string(),
     name: v.string(), // <-- NEW
     email: v.string(), // <-- NEW
+    imageUrl: v.string(), // <-- NEW
     lastSeen: v.number(), // timestamp in ms
   })
     .index("by_userId", ["userId"])

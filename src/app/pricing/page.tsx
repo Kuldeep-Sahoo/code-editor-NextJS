@@ -14,9 +14,9 @@ const Page = async () => {
   const convexUser = await convex.query(api.users.getUser, {
     userId: user?.id || "",
   });
-    if (!user) {
-      redirect("/");
-    }
+  if (!user) {
+    redirect("/");
+  }
 
   if (convexUser?.isPro) return <ProPlanView />;
 

@@ -5,6 +5,7 @@ export const goOnline = mutation({
   args: {
     userId: v.string(),
     email: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
     name: v.optional(v.string()), // optional
   },
   handler: async (ctx, args) => {
@@ -23,6 +24,7 @@ export const goOnline = mutation({
       userId: args.userId,
       name: args.name ?? "Anonymous",
       email: args.email ?? "Anonymous mail",
+      imageUrl: args.imageUrl ?? "Not available",
       lastSeen: now,
     });
   },

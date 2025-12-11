@@ -3,7 +3,7 @@
 export default {
   providers: [
     {
-      domain: "https://creative-hermit-5.clerk.accounts.dev/",
+      domain: "https://nautical-marmot-545.convex.dev/",
       applicationID: "convex",
     },
   ],

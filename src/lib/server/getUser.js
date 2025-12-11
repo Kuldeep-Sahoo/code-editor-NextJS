@@ -12,7 +12,10 @@ export async function getUser() {
       userId: user.id,
     });
 
-    return convexUser;
+    return {
+      ...convexUser,
+      imageUrl: user.imageUrl, // ⭐ ADD THIS
+    };
   } catch (err) {
     console.error("Error fetching Pro status:", err);
     return false;

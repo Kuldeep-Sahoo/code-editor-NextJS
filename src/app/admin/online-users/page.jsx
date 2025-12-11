@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import NavigationHeader from "@/components/NavigationHeader";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 
 export default function AdminOnlineUsersPage() {
     const router = useRouter();
@@ -64,21 +65,6 @@ export default function AdminOnlineUsersPage() {
         return filtered;
     }, [activeUsers, searchQuery, filterStatus]);
 
-    // Stats calculations
-    const stats = useMemo(() => {
-        if (!activeUsers) return { total: 0, active: 0, idle: 0 };
-
-        const active = activeUsers.filter(
-            (u) => Date.now() - u.lastSeen < 5000
-        ).length;
-
-        return {
-            total: activeUsers.length,
-            active,
-            idle: activeUsers.length - active,
-        };
-    }, [activeUsers]);
-
     if (isChecking) {
         return (
             <div className="h-screen flex items-center justify-center bg-gradient-to-br from-gray-950 via-gray-900 to-black">
@@ -104,53 +90,6 @@ export default function AdminOnlineUsersPage() {
                     </h1>
                     <p className="text-gray-400 text-sm">Real-time monitoring and analytics</p>
                 </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-xl p-6 backdrop-blur-sm">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-400 text-sm mb-1">Total Users</p>
-                                <p className="text-3xl font-bold text-blue-400">{stats.total.toLocaleString()}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-green-500/10 to-emerald-600/5 border border-green-500/20 rounded-xl p-6 backdrop-blur-sm">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-400 text-sm mb-1">Active Now</p>
-                                <p className="text-3xl font-bold text-green-400">{stats.active.toLocaleString()}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                                <div className="relative flex h-6 w-6">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                                    <span className="relative inline-flex rounded-full h-6 w-6 bg-green-500" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-gray-500/10 to-gray-600/5 border border-gray-500/20 rounded-xl p-6 backdrop-blur-sm">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-gray-400 text-sm mb-1">Idle Users</p>
-                                <p className="text-3xl font-bold text-gray-400">{stats.idle.toLocaleString()}</p>
-                            </div>
-                            <div className="w-12 h-12 bg-gray-500/20 rounded-lg flex items-center justify-center">
-                                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 {/* Search and Filter Bar */}
                 <div className="flex flex-col md:flex-row gap-4 mb-6">
                     <div className="flex-1 relative">
@@ -223,7 +162,14 @@ export default function AdminOnlineUsersPage() {
                                         <div className="flex flex-col gap-3">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xl shrink-0">
-                                                    {u.name?.[0]?.toUpperCase() || "?"}
+                                                    <Image
+                                                        src={u.imageUrl}
+                                                        width={100}
+                                                        height={100}
+                                                        alt="no url"
+                                                        className="w-10 h-10 rounded-full object-cover"
+                                                    />
+
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <p className="text-white font-semibold truncate text-sm">
