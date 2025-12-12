@@ -26,6 +26,53 @@ const AdminPanel = () => {
     const [problemData, setProblemData] = useState(emptyProblem);
     const [editingId, setEditingId] = useState(null);
 
+    // ------------------------------------
+    // BULK JSON IMPORT STATES
+    // ------------------------------------
+    const [showBulkModal, setShowBulkModal] = useState(false);
+    const [bulkJson, setBulkJson] = useState("");
+    const [isBulkLoading, setIsBulkLoading] = useState(false);
+
+    const handleBulkImport = async () => {
+        try {
+            setIsBulkLoading(true);
+
+            const parsed = JSON.parse(bulkJson);
+            if (!Array.isArray(parsed)) {
+                toast.error("JSON must be an array of problems");
+                return;
+            }
+
+            for (const p of parsed) {
+                await addProblem({
+                    problemId: p.problemId || "",
+                    title: p.title || "",
+                    description: p.description || "",
+                    difficulty: p.difficulty || "easy",
+                    constraints: p.constraints || "",
+                    languageSupport: p.languageSupport || ["cpp", "python", "javascript", "java"],
+                    testCases: p.testCases?.length ? p.testCases : [{ input: "", expectedOutput: "" }],
+                    baseCode: p.baseCode || { cpp: "", python: "", javascript: "", java: "" },
+                    createdAt: Date.now(),
+                });
+            }
+
+            toast.success("All problems imported successfully!");
+            setShowBulkModal(false);
+            setBulkJson("");
+
+        } catch (err) {
+            console.log(err);
+            toast.error("Invalid JSON format");
+        } finally {
+            setIsBulkLoading(false);
+        }
+    };
+
+    // ------------------------------------
+    // NORMAL HANDLERS
+    // ------------------------------------
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setProblemData((prev) => ({ ...prev, [name]: value }));
@@ -64,10 +111,10 @@ const AdminPanel = () => {
                     baseCode: problemData.baseCode,
                 },
             });
-            toast.success("Snippet shared successfully");
+            toast.success("Snippet updated successfully");
         } else {
             await addProblem({ ...problemData, createdAt: Date.now() });
-            toast.success("Snippet shared successfully");
+            toast.success("Snippet added successfully");
         }
 
         setProblemData(emptyProblem);
@@ -82,12 +129,7 @@ const AdminPanel = () => {
             description: p.description || "",
             difficulty: p.difficulty || "easy",
             constraints: p.constraints || "",
-            languageSupport: p.languageSupport || [
-                "cpp",
-                "python",
-                "javascript",
-                "java",
-            ],
+            languageSupport: p.languageSupport || ["cpp", "python", "javascript", "java"],
             testCases: p.testCases?.length
                 ? p.testCases
                 : [{ input: "", expectedOutput: "" }],
@@ -103,19 +145,29 @@ const AdminPanel = () => {
     const deleteProblem = async (id) => {
         try {
             await deleteProblemById({ id });
-            toast.success("Problem deleted Successfully")
+            toast.success("Problem deleted Successfully");
         } catch (e) {
             console.log(e);
-            toast.error("some error occured")
+            toast.error("Some error occurred");
         }
-    }
+    };
 
     return (
         <>
             <NavigationHeader />
             <div className="min-h-[90vh] bg-[#0a0a0f] text-white flex flex-col md:flex-row">
+
                 {/* LEFT: Problem Form */}
                 <div className="w-full md:w-[60%] p-4 md:p-6 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-700">
+
+                    {/* BULK JSON IMPORT BUTTON */}
+                    <button
+                        onClick={() => setShowBulkModal(true)}
+                        className="mb-4 w-full bg-green-600 hover:bg-green-700 py-2 rounded-md font-semibold"
+                    >
+                        📥 Bulk Add Problems (JSON)
+                    </button>
+
                     <h3 className="text-lg md:text-xl font-semibold mb-4 text-center md:text-left">
                         {editingId ? "✏️ Edit Problem" : "➕ Add New Problem"}
                     </h3>
@@ -171,7 +223,7 @@ const AdminPanel = () => {
                             />
                         </div>
 
-                        {/* 🧪 Test Cases */}
+                        {/* TEST CASES */}
                         <h3 className="text-lg mt-2 font-semibold">🧪 Test Cases</h3>
                         {problemData.testCases.map((tc, index) => (
                             <div key={index} className="flex flex-col sm:flex-row gap-2 mb-1">
@@ -210,7 +262,7 @@ const AdminPanel = () => {
                             + Add Test Case
                         </button>
 
-                        {/* 💻 Base Code */}
+                        {/* BASE CODE */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                             {["cpp", "python", "javascript", "java"].map((lang) => (
                                 <div key={lang}>
@@ -227,7 +279,7 @@ const AdminPanel = () => {
                             ))}
                         </div>
 
-                        {/* Buttons */}
+                        {/* BUTTONS */}
                         <div className="flex flex-col sm:flex-row gap-2 mt-4">
                             <button
                                 onClick={handleSubmit}
@@ -268,15 +320,21 @@ const AdminPanel = () => {
                                 >
                                     <div className="flex justify-between items-center">
                                         <div>
-
                                             <h3 className="font-semibold text-base md:text-lg">
-                                                {p.problemId.toString().toUpperCase()}. {p.title}
+                                                {p.problemId?.toString().toUpperCase()}. {p.title}
                                             </h3>
                                             <p className="text-sm text-gray-400 capitalize">
                                                 {p.difficulty || "N/A"}
                                             </p>
                                         </div>
-                                        <div className="text-yellow-400 hover:text-red-800" onClick={() => deleteProblem(p._id)}><Trash2 />
+                                        <div
+                                            className="text-yellow-400 hover:text-red-800"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                deleteProblem(p._id);
+                                            }}
+                                        >
+                                            <Trash2 />
                                         </div>
                                     </div>
                                 </div>
@@ -289,6 +347,39 @@ const AdminPanel = () => {
                     </div>
                 </div>
             </div>
+
+            {/* ------------------- BULK IMPORT MODAL ---------------------- */}
+            {showBulkModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+                    <div className="bg-gray-900 w-full max-w-2xl p-6 rounded-lg border border-gray-700">
+                        <h2 className="text-xl font-semibold mb-4">📥 Bulk JSON Problem Import</h2>
+
+                        <textarea
+                            value={bulkJson}
+                            onChange={(e) => setBulkJson(e.target.value)}
+                            placeholder={`Paste JSON array here...\n\n[\n  {\n    "problemId": "p1",\n    "title": "Two Sum",\n    "description": "Find two numbers...",\n    "difficulty": "easy"\n  }\n]`}
+                            className="w-full h-64 p-3 bg-black border border-gray-700 rounded-md text-sm"
+                        />
+
+                        <div className="flex justify-end gap-3 mt-4">
+                            <button
+                                onClick={() => setShowBulkModal(false)}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-md"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                disabled={isBulkLoading}
+                                onClick={handleBulkImport}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-md font-semibold disabled:opacity-40"
+                            >
+                                {isBulkLoading ? "Importing..." : "Import JSON"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
