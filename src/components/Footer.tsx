@@ -2,12 +2,8 @@
 
 import { Blocks, Github } from "lucide-react";
 import Link from "next/link";
-import { api } from "../../convex/_generated/api";
-import { useQuery } from "convex/react";
 
 function Footer() {
-  // Live active users from Convex
-  const activeCount = useQuery(api.onlineUsers.getActiveUserCount);
 
   return (
     <footer className="relative mt-auto">
@@ -17,11 +13,6 @@ function Footer() {
           <div className="flex items-center gap-2 text-gray-400">
             <Blocks className="size-5" />
             <span>Built for developers, by developers</span>
-          </div>
-
-          {/* Live Online Count */}
-          <div className="text-green-400 font-semibold">
-            {activeCount ? <p>Active users: {activeCount.count}</p> : <p>Loading...</p>}
           </div>
 
           <div className="flex items-center gap-6">
